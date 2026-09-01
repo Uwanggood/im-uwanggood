@@ -37,6 +37,8 @@ export type Project = {
   colors: [string, string, string];
 };
 
+type ProjectScope = 'all' | 'work' | 'personal';
+
 type CodeCategory = 'Frontend' | 'Backend' | 'Database' | 'Model' | 'Query';
 
 type CodeProof = {
@@ -774,17 +776,18 @@ const projects: Project[] = [
     title: 'AIMOS Venus 학습 운영 플랫폼',
     company: 'AIMOS',
     role: 'Solo architecture / Frontend / Backend / Agent',
-    perspective: 'Make every experiment reproducible',
+    perspective: '학습 기록을 다시 찾을 수 있게',
     archiveNote:
       '모델 구조를 보여주는 화면보다 데이터셋·코드·실행 환경·결과를 같은 이력으로 묶는 데 집중했습니다.',
     summary:
       '흩어진 데이터셋과 학습 실행, metric·log·artifact를 재현 가능한 하나의 실행 이력으로 연결했습니다.',
-    lead: '로컬 폴더와 서버마다 흩어지던 학습 기록을 팀이 다시 실행하고 비교할 수 있는 내부 MLOps 플랫폼으로 만들었습니다.',
+    lead: '번호판 OCR을 여러 번 학습하다 보니 weight 파일만 남고, 어떤 데이터와 설정으로 만든 결과인지 찾는 시간이 더 오래 걸렸습니다. 그래서 학습 실행 자체를 기록하는 도구를 만들었습니다.',
     startingPoint:
-      '번호판 OCR을 반복 개선할수록 어떤 데이터셋과 코드, 설정으로 weight가 만들어졌는지 추적하는 일이 모델 자체보다 더 큰 병목이 됐습니다.',
+      '데이터셋은 로컬 폴더에, 코드는 Git에, metric과 로그는 학습 서버에 따로 남았습니다. 성능이 좋았던 weight를 찾아도 같은 조건으로 다시 실행하기 어려웠습니다.',
     build:
-      'Flutter Frontend, Go Backend와 local Agent를 단독 설계·구현했습니다. 데이터셋을 내용 기반 version으로 Object Storage에 보존하고 Git revision, model input, metric, log, GPU resource와 artifact를 training run에 고정했습니다.',
-    outcome: '4종 실제 모델의 데이터셋·학습·실험 이력을 팀 단위로 통합',
+      'Flutter 화면, Go 백엔드, 학습 서버에서 명령을 받는 Agent를 모두 만들었습니다. Agent가 데이터셋을 스캔해 내용 기준 버전을 만들고, 실행할 때 Git revision과 입력값을 함께 고정합니다. 학습 중 metric·로그·GPU 사용량을 받고 끝나면 weight와 artifact를 같은 실행 기록에 보관합니다.',
+    outcome:
+      '번호판 OCR·번호판 Detection·방통차·그래플 모델의 학습 기록을 한곳에서 관리',
     stack: ['Flutter', 'Go', 'RabbitMQ', 'Object Storage', 'MLOps'],
     tags: [
       'ai',
@@ -802,11 +805,11 @@ const projects: Project[] = [
       },
       {
         signals: ['flutter'],
-        text: 'Flutter에서 experiment, metric, log, resource와 artifact를 하나의 학습 이력으로 탐색하게 구성했습니다.',
+        text: 'Flutter 화면에서 실행별 metric, 로그, GPU 사용량과 결과 파일을 함께 확인합니다.',
       },
       {
         signals: ['go', 'rabbitmq', 'backend'],
-        text: 'Go Backend와 RabbitMQ가 원격 Runner의 학습 명령, 상태와 결과 수집을 연결합니다.',
+        text: 'Go 백엔드가 RabbitMQ로 원격 Agent에 학습을 지시하고 진행 상태와 결과를 받습니다.',
       },
       {
         signals: ['object-storage', 'object storage'],
@@ -831,18 +834,18 @@ const projects: Project[] = [
     title: 'Esther 데이터베이스 설계 도구',
     company: 'Independent',
     role: 'Product design / Engineering',
-    perspective: 'Schema changes need memory and proof',
+    perspective: 'DB 변경을 기억에 맡기지 않기',
     archiveNote:
       'ERD를 그리는 데서 끝내지 않고 용어, 실제 DB 상태, 변경 계획과 배포 이력을 같은 프로젝트 기록으로 묶었습니다.',
     summary:
       '용어사전과 ERD, 실제 PostgreSQL 비교, 안전한 DDL 적용과 버전 이력을 연결한 local-first 데스크톱 앱입니다.',
-    lead: '들쭉날쭉한 컬럼명과 사라지는 SQL 작업 기록을, 검토하고 재사용할 수 있는 데이터베이스 변경 이력으로 바꿨습니다.',
+    lead: '같은 뜻의 컬럼도 사람마다 이름과 타입이 달랐고, DataGrip console이 사라지면 전에 실행한 DDL을 다시 찾기 힘들었습니다. 제가 설계하고 배포한 내용을 잊지 않으려고 만든 도구입니다.',
     startingPoint:
-      '같은 개념의 컬럼명과 타입이 개발자마다 달랐고, DataGrip console이 사라지면 어떤 DDL을 실행했는지 다시 확인하기 어려웠습니다.',
+      'DB 설계 규칙은 문서와 사람 기억에 흩어져 있었습니다. 개발 DB에서 바꾼 내용을 운영에 반영할 때도 당시 SQL과 변경 이유를 다시 찾아야 했습니다.',
     build:
-      'Flutter로 용어사전·ERD·SQL console을 통합했습니다. 실제 PostgreSQL schema를 읽어 설계와 diff하고, advisory lock 뒤 상태를 다시 확인한 다음 versioned migration을 적용·보관하도록 구성했습니다.',
+      '먼저 용어사전에 표준 컬럼명과 타입을 등록하고, 그 규칙을 보면서 ERD를 그리게 했습니다. 저장한 설계는 실제 PostgreSQL schema와 비교해 DDL로 만들고, 적용 직전에는 advisory lock을 잡은 뒤 DB 상태가 다시 바뀌지 않았는지 확인합니다. 실행한 migration은 버전과 함께 남깁니다.',
     outcome:
-      '용어 정의 → 설계 → 비교 → DDL 적용 → 운영 배포 이력을 한곳에 통합',
+      '용어사전, ERD, 실제 DB 비교, DDL 실행 기록을 한 프로젝트 안에서 확인 가능',
     stack: ['Flutter', 'Dart', 'PostgreSQL', 'Schema Diff', 'Migration'],
     tags: [
       'database',
@@ -863,7 +866,7 @@ const projects: Project[] = [
       },
       {
         signals: ['flutter', 'dart'],
-        text: '용어사전, ERD, SQL console과 migration history를 Flutter desktop 작업 흐름으로 통합했습니다.',
+        text: 'Flutter 데스크톱 앱에서 용어사전, ERD, SQL console과 migration 기록을 오가며 작업합니다.',
       },
     ],
     flow: [
@@ -884,16 +887,16 @@ const projects: Project[] = [
     title: 'Bucket Studio',
     company: 'Independent',
     role: 'Product design / Engineering / Distribution',
-    perspective: 'Object storage should feel like a file system',
+    perspective: '웹 콘솔을 오가지 않는 스토리지 도구',
     archiveNote:
       'provider별 웹 콘솔을 오가는 대신 여러 S3-compatible storage를 같은 데스크톱 작업 방식으로 다루게 했습니다.',
     summary:
       'AWS S3부터 NCP Archive까지 탐색·검색·미리보기·전송하는 cross-platform object storage browser입니다.',
-    lead: '운영체제와 provider에 따라 달라지는 object storage 작업을 하나의 빠르고 안전한 file explorer로 만들었습니다.',
+    lead: 'S3 파일 하나를 찾을 때마다 provider별 웹 콘솔을 열고 경로를 따라가는 게 불편했습니다. macOS와 Linux에서도 쓸 수 있고 NCP Archive까지 지원하는 데스크톱 도구를 직접 만들었습니다.',
     startingPoint:
-      '웹 console을 오가는 과정이 불편했고, Windows의 기존 S3 도구는 전송 제한이 있었으며 macOS·Linux까지 같은 경험을 제공하는 선택지가 부족했습니다.',
+      'Windows에는 S3 Browser가 있었지만 전송 속도 제한이 있었고 macOS·Linux에서는 마땅한 도구를 찾기 어려웠습니다. 특히 NCP Archive Storage는 일반 S3 도구에서 탐색이 매끄럽지 않았습니다.',
     build:
-      'Flutter에서 AWS Signature V4를 직접 구현하고 multipart upload, recursive download·delete preview, presigned URL, media preview와 ETag 기반 text conflict detection을 연결했습니다. NCP Archive의 ListObjectsV1 차이도 별도 처리했습니다.',
+      'Flutter 앱 안에서 AWS Signature V4 요청과 presigned URL을 직접 만들었습니다. bucket 바로가기, 경로·부분 검색, 이미지·영상·텍스트 미리보기, multipart upload와 폴더 다운로드를 넣었습니다. NCP Archive의 ListObjectsV1 차이는 provider별 처리로 흡수했고, 삭제 전 대상 목록과 텍스트 저장 전 ETag 충돌도 확인하게 했습니다.',
     outcome: 'S3-compatible 6종 provider 지원 · Microsoft Store 배포',
     stack: ['Flutter', 'AWS SigV4', 'S3', 'NCP Archive', 'Multipart Upload'],
     tags: [
@@ -912,7 +915,7 @@ const projects: Project[] = [
       },
       {
         signals: ['ncp', 'ncp archive'],
-        text: 'NCP Archive의 ListObjectsV1과 folder marker 차이를 흡수해 같은 탐색 경험을 제공합니다.',
+        text: 'NCP Archive는 ListObjectsV1과 folder marker 처리 차이를 따로 구현했습니다.',
       },
       {
         signals: ['flutter', 'dart', 'desktop'],
@@ -920,7 +923,7 @@ const projects: Project[] = [
       },
       {
         signals: ['platform', 'multipart upload'],
-        text: '대용량 multipart upload, retry·abort와 partial download를 실제 transfer lifecycle로 구현했습니다.',
+        text: '대용량 파일은 multipart로 올리고 실패한 part만 재시도하거나 전체 업로드를 중단할 수 있습니다.',
       },
     ],
     flow: [
@@ -941,16 +944,16 @@ const projects: Project[] = [
     title: 'Copylight',
     company: 'Independent',
     role: 'Product design / Engineering / Distribution',
-    perspective: 'Clipboard history should remain usable',
+    perspective: '복사한 내용을 바로 고쳐 쓰기',
     archiveNote:
       '복사 기록을 쌓기만 하지 않고 수정·검색·pin·JSON 변환과 원래 앱으로의 paste까지 하나의 짧은 흐름으로 만들었습니다.',
     summary:
       '텍스트와 이미지를 검색·수정·정리하고 원래 작업 앱으로 다시 붙여넣는 local-first clipboard manager입니다.',
-    lead: '자주 쓰는 clip을 찾고 고치고 변환하는 일을 clipboard panel 안에서 끝내도록 만들었습니다.',
+    lead: '복사한 JSON을 다시 편집기에 붙여 넣어 정리하고, 예전에 복사한 값을 찾아 또 복사하는 일이 반복됐습니다. 검색·수정·고정·변환을 클립보드 창에서 끝내려고 만들었습니다.',
     startingPoint:
-      '기본 clipboard에는 과거 기록 검색, 내용 수정, pin과 JSON formatting이 없어 개발 중 반복 작업이 끊겼습니다.',
+      '기본 클립보드는 기록을 오래 보관하지 못하고, 필요한 항목을 검색하거나 내용을 고칠 수도 없었습니다. 개발 중 자주 쓰는 JSON과 명령어를 정리해 두는 기능도 필요했습니다.',
     build:
-      'Flutter UI에 Windows C++와 macOS Swift native clipboard·window 기능을 연결했습니다. AES-GCM 암호화 저장, 대형 payload 분리, backup 복구, retry와 종료 전 flush도 구현했습니다.',
+      '검색, pin, 그룹, 편집, JSON formatting을 Flutter로 만들고 Windows C++와 macOS Swift 코드로 전역 단축키·이미지 clipboard·이전 앱으로 돌아가 붙여넣기를 연결했습니다. 기록은 AES-GCM으로 암호화하고 큰 데이터는 분리 저장했습니다. 저장 실패 재시도, backup 복구와 종료 전 flush도 넣었습니다.',
     outcome: '56개 interaction·storage test · Microsoft Store 배포',
     stack: ['Flutter', 'C++', 'Swift', 'AES-GCM', 'Native Clipboard'],
     tags: [
@@ -965,7 +968,7 @@ const projects: Project[] = [
     matchProofs: [
       {
         signals: ['flutter', 'dart'],
-        text: '검색·pin·group·edit·keyboard interaction을 하나의 Flutter desktop panel로 구성했습니다.',
+        text: 'Flutter 창 안에서 기록 검색, pin, 그룹, 편집과 키보드 조작을 처리합니다.',
       },
       {
         signals: ['cpp', 'c++', 'swift', 'desktop'],
@@ -988,16 +991,16 @@ const projects: Project[] = [
     title: 'Path Doctor',
     company: 'Independent',
     role: 'Product design / Engineering / Distribution',
-    perspective: 'Turn network symptoms into shared evidence',
+    perspective: '“느리다”를 측정값으로 바꾸기',
     archiveNote:
       '명령어를 모르는 현장 담당자도 DNS·ping·route·HTTP 측정값을 개발자와 같은 화면에서 볼 수 있게 했습니다.',
     summary:
       '네트워크 경로와 지연 급증 구간을 시각화하고 다음 확인 행동을 설명하는 desktop 진단 도구입니다.',
-    lead: '“현장에서 느리다”는 보고를 재현 가능한 네트워크 측정값과 다음 점검 행동으로 바꿨습니다.',
+    lead: '현장 담당자는 서비스가 느리다고 말하지만 traceroute 같은 명령을 쓰기는 어렵고, 개발자는 어느 구간이 문제인지 알 수 없었습니다. 같은 화면을 보며 얘기할 수 있도록 만든 진단 도구입니다.',
     startingPoint:
-      '현장 담당자가 traceroute와 속도 측정 결과를 전달하기 어려워 개발자도 어느 구간이 느린지 같은 정보를 보고 판단할 수 없었습니다.',
+      '현장 PC에서만 느린 문제가 생겨도 DNS인지, 사내망인지, 외부 구간인지 확인할 자료가 없었습니다. 명령어 실행 결과를 캡처해 전달하는 방식도 일반 사용자가 하기 어려웠습니다.',
     build:
-      'DNS lookup, ping RTT·packet loss, traceroute, reverse DNS·RDAP와 HTTP 응답을 한 번에 수집했습니다. hop graph에서 latency jump를 강조하고 download·upload speed와 반복 진단 이력도 제공했습니다.',
+      '주소 하나를 입력하면 DNS, ping 지연·packet loss, traceroute, reverse DNS·RDAP와 HTTP 응답을 순서대로 측정합니다. hop을 경로로 보여주고 지연이 크게 뛴 구간과 응답을 막은 장비를 구분했습니다. download·upload 속도와 이전 측정 기록도 함께 볼 수 있게 했습니다.',
     outcome: 'Windows v1.0 공개 · GitHub Pages와 itch.io 배포',
     stack: ['Flutter', 'DNS', 'Traceroute', 'RDAP', 'HTTP Diagnostics'],
     tags: ['flutter', 'dart', 'network', 'diagnostics', 'http', 'desktop'],
@@ -1027,17 +1030,18 @@ const projects: Project[] = [
     title: '철스크랩 모바일 AI 검수',
     company: 'AIMOS',
     role: 'Senior Fullstack / AI Engineer',
-    perspective: 'Field input, complete feedback loop',
+    perspective: '휴대폰 촬영부터 AI 판정까지',
     archiveNote:
       '현장의 한 장을 업로드 기능으로 끝내지 않고, 인증·저장·추론·알림이 실패해도 다시 이어지는 하나의 제품 경계로 설계했습니다.',
     summary:
       '촬영부터 AI 판정, 결과 저장과 담당자 알림까지 하나의 모바일 흐름으로 연결했습니다.',
-    lead: '현장에서 찍힌 한 장의 이미지가 모델의 판정과 담당자의 알림으로 이어지도록, 모바일부터 추론 서버까지 전체 흐름을 만들었습니다.',
+    lead: 'PC가 없는 작업 위치에서도 휴대폰으로 사진을 찍어 바로 AI 검수를 요청할 수 있어야 했습니다. 화면만 만든 게 아니라 업로드, 추론, 결과 저장과 알림까지 제가 연결했습니다.',
     startingPoint:
-      '현장 작업자는 별도의 설치 과정 없이 휴대폰으로 검수를 시작해야 했고, 대용량 이미지 전송과 AI 추론은 모바일 네트워크에서도 안정적으로 동작해야 했습니다.',
+      '현장에서는 앱 설치가 어렵고 통신도 일정하지 않았습니다. 큰 이미지를 API 서버가 직접 받으면 업로드 실패와 서버 부하가 함께 생길 수 있었습니다.',
     build:
-      'Flutter Web PWA와 Go gRPC 백엔드, FastAPI 추론 서버를 연결했습니다. Presigned URL 업로드, HMAC 웹훅, PASETO 인증, Redis 세션과 FCM 알림까지 직접 구성했습니다.',
-    outcome: '촬영 → 업로드 → AI 판정 → 저장 → 알림을 End-to-End로 구축',
+      'Flutter Web PWA에서 촬영하고 presigned URL로 Object Storage에 바로 올리게 했습니다. Go gRPC 백엔드가 검수 요청과 인증을 맡고 FastAPI 모델 서버가 이미지를 받아 결과를 돌려줍니다. 결과는 HMAC으로 검증한 뒤 저장하고 FCM으로 담당자에게 알립니다. PASETO와 Redis 세션까지 포함해 전체 흐름을 만들었습니다.',
+    outcome:
+      '설치 없이 촬영한 사진이 AI 판정과 담당자 알림까지 이어지는 모바일 검수 흐름 운영',
     stack: ['Flutter Web', 'Go', 'gRPC-Web', 'FastAPI', 'PASETO', 'Redis'],
     tags: ['ai', 'backend', 'platform', 'go', 'fastapi', 'grpc', 'flutter'],
     matchProofs: [
@@ -1047,15 +1051,15 @@ const projects: Project[] = [
       },
       {
         signals: ['go', 'grpc', 'grpc-web', 'backend', 'platform'],
-        text: 'Go와 gRPC-Web이 모바일 요청, 저장소 업로드, 추론 호출 사이의 안정적인 백엔드 경계를 담당합니다.',
+        text: 'Go와 gRPC-Web이 모바일 요청을 받고 업로드 완료 뒤 모델 추론을 요청합니다.',
       },
       {
         signals: ['fastapi', 'ai'],
-        text: 'FastAPI를 모델 추론 경계로 두어 제품 API와 AI 실행 환경을 독립적으로 운영했습니다.',
+        text: '모델 실행은 FastAPI 서버로 분리해 제품 API를 배포할 때 모델 환경을 다시 묶지 않게 했습니다.',
       },
       {
         signals: ['redis', 'paseto'],
-        text: 'PASETO 인증과 Redis 세션으로 모바일 환경의 인증 상태와 재요청 흐름을 관리했습니다.',
+        text: 'PASETO 토큰과 Redis 세션으로 로그인 상태와 만료 처리를 구현했습니다.',
       },
     ],
     flow: [
@@ -1076,17 +1080,18 @@ const projects: Project[] = [
     title: 'AI 추론 인프라 전환',
     company: 'AIMOS',
     role: 'Senior Fullstack / AI Engineer',
-    perspective: 'Compute only when the product needs it',
+    perspective: '쓰지 않는 GPU 비용 없애기',
     archiveNote:
       '모델 성능보다 먼저 유휴 GPU가 만드는 고정비를 문제로 보고, 추론을 상시 서버에서 수요 기반 실행 단위로 바꿨습니다.',
     summary:
       'Naver Cloud의 추론 환경을 AWS SageMaker 기반의 탄력적인 운영 구조로 전환했습니다.',
-    lead: 'GPU가 필요한 순간에만 추론 환경이 움직이도록 클라우드 구조를 다시 설계했습니다.',
+    lead: '요청이 없어도 계속 켜져 있는 GPU 서버가 비용 대부분을 차지했습니다. 모델 호출 방식은 유지하면서, 필요할 때만 GPU를 쓰는 구조로 옮겼습니다.',
     startingPoint:
-      '항상 실행되는 GPU 인스턴스는 사용량과 무관하게 비용을 만들었고, 기존 추론 환경은 서비스별 확장과 배포를 반복하기 어려웠습니다.',
+      'Naver Cloud의 GPU 서버는 추론 요청이 없는 시간에도 비용이 나갔습니다. 모델과 제품 API가 가까이 붙어 있어 서버를 줄이거나 실행 환경을 바꾸기도 어려웠습니다.',
     build:
-      '모델 배포와 호출 경계를 분리하고 SageMaker 기반 추론 구조로 옮겼습니다. 비사용 시간에는 GPU가 실행되지 않는 운영 방식을 적용했습니다.',
-    outcome: '비사용 시간 GPU를 멈추는 Zero-scale 추론 구조 적용',
+      '제품 서버와 모델 실행을 분리하고, 입력 이미지는 presigned URL로 주고받게 바꿨습니다. 추론 작업을 AWS SageMaker에서 실행하도록 옮겨 요청이 없을 때는 GPU가 남아 있지 않게 했습니다. 기존 FastAPI 호출 규격은 유지해 제품 쪽 수정 범위를 줄였습니다.',
+    outcome:
+      '상시 GPU 서버를 없애고 실제 사용한 추론 시간에 대해서만 비용이 발생하도록 변경',
     stack: ['AWS SageMaker', 'Naver Cloud', 'FastAPI', 'Object Storage'],
     tags: ['ai', 'platform', 'infra', 'cost', 'aws', 'ncp', 'fastapi'],
     matchProofs: [
@@ -1100,7 +1105,7 @@ const projects: Project[] = [
       },
       {
         signals: ['fastapi', 'ai'],
-        text: 'FastAPI 호출 경계를 유지해 인프라가 바뀌어도 제품의 추론 계약은 흔들리지 않게 했습니다.',
+        text: '기존 FastAPI 요청 형식을 유지해 제품 서버는 SageMaker 전환을 거의 알 필요가 없게 했습니다.',
       },
       {
         signals: ['object storage'],
@@ -1125,17 +1130,18 @@ const projects: Project[] = [
     title: '사내 AI 라벨링 플랫폼 Stitch',
     company: 'AIMOS',
     role: 'Solo build',
-    perspective: 'Own the complete data loop',
+    perspective: '다운로드 없이 라벨링부터 검수까지',
     archiveNote:
       '라벨 하나를 그리는 UI보다 원천 데이터가 검수·승인·학습본으로 바뀌는 전체 생명주기를 제품으로 만들었습니다.',
     summary:
       '라벨링, 검수, 승인과 데이터셋 생성을 하나로 묶어 외부 솔루션을 대체했습니다.',
-    lead: '외부 도구에 흩어져 있던 데이터 작업을, 모델 학습까지 이어지는 하나의 사내 플랫폼으로 만들었습니다.',
+    lead: '원본을 내려받고 보안 솔루션에 올리고, 작업자별 폴더로 나눈 뒤 결과를 다시 모으는 과정이 너무 길었습니다. 이 과정을 클라우드 안에서 끝내려고 Stitch를 만들었습니다.',
     startingPoint:
-      'AI 학습 데이터가 외부 라벨링 솔루션과 수작업 검수 과정에 나뉘어 있었습니다. 비용뿐 아니라 데이터 이동과 버전 관리도 반복됐습니다.',
+      '기존 방식은 로컬 다운로드 때문에 보안 문제가 생겼고, 이를 막기 위해 1회성 약 1억 원의 보안 솔루션과 연간 약 2천만 원의 라벨링 도구를 사용하고 있었습니다. 데이터 배분과 완료본 취합은 여전히 사람이 했습니다.',
     build:
-      '라벨링, 검수, 승인, 데이터셋 내보내기를 한 제품에 담았습니다. SAM 오토 라벨링, 멀티 서버 임베딩 캐시, Keycloak 인증과 Object Storage를 연결했습니다.',
-    outcome: '외부 라벨링 솔루션 비용 연간 약 2,000만 원 절감',
+      'Flutter 화면과 Go 백엔드를 단독으로 설계·구현했습니다. Object Storage의 원본을 프로젝트와 작업자에게 바로 배분하고, SAM 결과를 수정 가능한 polygon으로 바꿨습니다. 작업·검수·반려·재작업·승인 상태와 COCO·YOLO·Pascal VOC export를 연결했습니다. 회원사별 모델 설정과 작업량·평균 작업시간·승인율 통계도 넣고 있습니다.',
+    outcome:
+      '약 30명이 연간 수만 장을 처리하는 팀용 POC 진행, 외부 라벨링 도구 대체 예정',
     stack: ['Go', 'SAM', 'Keycloak', 'Object Storage', 'Embedding Cache'],
     tags: [
       'ai',
@@ -1149,7 +1155,7 @@ const projects: Project[] = [
     matchProofs: [
       {
         signals: ['go', 'backend', 'platform'],
-        text: 'Go 백엔드가 작업 배정, 검수 상태, 승인과 데이터셋 내보내기의 전체 상태 전이를 관리합니다.',
+        text: 'Go 백엔드에서 작업 배정, 검수·반려·재작업·승인과 데이터셋 export 상태를 관리합니다.',
       },
       {
         signals: ['ai', 'sam', 'embedding cache'],
@@ -1157,11 +1163,11 @@ const projects: Project[] = [
       },
       {
         signals: ['keycloak'],
-        text: 'Keycloak으로 팀과 역할에 따른 내부 데이터 접근 경계를 분리했습니다.',
+        text: 'Keycloak 권한에 따라 관리자, 작업자와 검수원이 볼 수 있는 작업을 나눴습니다.',
       },
       {
         signals: ['object-storage', 'object storage'],
-        text: '원천 이미지와 산출 데이터는 Object Storage에 두고 애플리케이션은 수명주기만 통제합니다.',
+        text: '원본과 라벨 결과는 Object Storage에 두고 다운로드 없이 작업자에게 배분합니다.',
       },
       {
         signals: ['cost'],
@@ -1180,16 +1186,16 @@ const projects: Project[] = [
     title: '차량 추적 및 검수 자동화',
     company: 'AIMOS',
     role: 'Senior Fullstack / AI Engineer',
-    perspective: 'A model that changes an operation',
+    perspective: '무전으로 시작하던 검수를 자동화',
     archiveNote:
       '정확도 하나가 아니라 차량의 연속성, 번호판 오류, 검수 상태 전이를 함께 다뤄 모델을 현장 자동화로 연결했습니다.',
     summary:
       '번호판 인식과 차량 추적을 연결해 차량의 입출에 따라 검수를 자동으로 제어했습니다.',
-    lead: '카메라 프레임 속 차량을 계속 식별하고, 입차부터 출차까지 검수의 시작과 종료를 자동화했습니다.',
+    lead: '예전에는 차량이 들어올 때마다 검수원이 중앙 사무실에 무전하고, 사무실이 다시 작업자에게 시작 지시를 내려야 했습니다. 번호판과 카메라 영상으로 이 반복을 없앴습니다.',
     startingPoint:
-      '현장에서는 차량의 진입과 이탈을 사람이 확인해 검수 상태를 바꿔야 했고, 번호판의 각도와 조명 변화가 인식 정확도를 떨어뜨렸습니다.',
+      '하루 종일 무전을 주고받으며 시작·종료를 눌러야 해서 차량을 놓치거나 처리가 늦는 일이 있었습니다. 번호판은 지역명, 6과 9, 기울기와 빛 번짐에서 자주 틀렸고 차량을 잠깐 놓치면 잘못 종료될 수도 있었습니다.',
     build:
-      '차량 추적과 LPRNet을 연결하고, 합성 데이터와 Focal Loss를 활용해 현장 조건에 맞게 문자 인식을 개선했습니다.',
+      'YOLOX로 번호판 영역을 찾고 개조한 LPRNet으로 문자열을 읽는 2단계 모델을 학습했습니다. 공공데이터 성능이 나오지 않아 현장 카메라에서 실데이터 약 4만 장을 모아 직접 정제·라벨링했고 합성 데이터 5천 장을 더했습니다. 차량이 들어오면 번호판으로 검수를 시작하고, 검수 카메라의 연속 미검출로 이탈을 판단합니다. 같은 차량이 다시 보이면 이전 검수를 복구하게 했습니다.',
     outcome: '번호판 전체 문자열 일치율 Validation 98% · 8개 하차지 자동 운영',
     stack: ['LPRNet', 'Focal Loss', 'Vehicle Tracking', 'Synthetic Data'],
     tags: ['ai', 'backend', 'computer-vision', 'tracking', 'lpr'],
@@ -1208,7 +1214,7 @@ const projects: Project[] = [
       },
       {
         signals: ['backend'],
-        text: '추론 결과를 검수 시작·종료 상태로 변환해 운영 시스템이 바로 소비할 수 있게 했습니다.',
+        text: '번호판이 확인되면 검수를 시작하고, 연속 미검출이면 종료하며 재진입 때는 이전 상태를 복구합니다.',
       },
     ],
     flow: [
@@ -1229,34 +1235,48 @@ const projects: Project[] = [
     title: '철강 스크랩 AI 검수 시스템 재구축',
     company: 'AIMOS',
     role: 'Senior Fullstack / AI Engineer',
-    perspective: 'Architecture as an economic decision',
+    perspective: '56대 구조를 다시 뜯어고친 이유',
     archiveNote:
       '서버 대수를 줄인 일이 아니라 데이터 이동과 저장, 동기 처리 경계를 다시 그려 비용 구조 자체를 바꾼 재구축입니다.',
     summary:
       '분산 DB와 동기 처리, 현장 Edge 서버를 통합 운영 구조로 다시 설계했습니다.',
-    lead: '월 차량 검수가 478대에서 7,555대로 늘어나는 동안 56대 구조를 10대로 통합하고 클라우드 비용을 5,524만 원에서 1,052만 원으로 낮췄습니다.',
+    lead: 'POC 성공 뒤 50명 팀과 만든 시스템을 인수받았을 때 서버는 56대까지 늘어 있었고, 모델 결과를 현장별 Docker가 하나씩 동기로 처리하고 있었습니다. 2025년 7월부터 구조를 다시 뜯어고쳤습니다.',
     startingPoint:
-      '현장마다 분리된 DB와 동기식 처리, 다수의 Edge 서버가 장애 대응과 데이터 관리 비용을 키우고 있었습니다.',
+      '모델 응답은 MQ를 거쳐 현장별 Docker가 하나씩 처리했고, 그 Docker를 감시하는 서버도 따로 있었습니다. DB와 서비스도 현장별로 갈라져 있어 장애 확인과 배포가 반복됐고, 56대 서버와 상시 GPU가 큰 고정비를 만들었습니다.',
     build:
-      'Object Storage, Redis, CloudFront와 통합 DB를 중심으로 처리 경계를 재설계했습니다. 원본 데이터의 수명주기에 맞춰 Archive Storage도 적용했습니다.',
+      '모델 요청과 응답 처리를 aimos-aib로 통합하고 이미지는 presigned URL로 주고받게 바꿨습니다. 분리 DB와 API 서버를 합치고 CloudFront, Object Storage, Redis를 기준으로 데이터 경계를 다시 잡았습니다. 반복 배치 작업은 Airflow로 옮기고 오래 보관할 원본은 Archive Storage로 내렸습니다. 모니터링은 Grafana와 Slack으로 모으도록 정리했습니다. 설계·개발·배포·현장 대응과 리드를 맡았습니다.',
     outcome:
       '월 검수 478대 → 7,555대 · 비용 5,524만 원 → 1,052만 원 · 서버 56대 → 10대',
     stack: [
       'FastAPI',
       'Redis',
       'CloudFront',
+      'Airflow',
       'Object Storage',
       'Archive Storage',
     ],
-    tags: ['cost', 'backend', 'platform', 'infra', 'redis', 'aws', 'ncp'],
+    tags: [
+      'cost',
+      'backend',
+      'platform',
+      'infra',
+      'redis',
+      'airflow',
+      'aws',
+      'ncp',
+    ],
     matchProofs: [
       {
         signals: ['fastapi', 'backend', 'platform'],
-        text: '분산된 현장 처리를 FastAPI 기반 통합 API로 모아 운영과 배포 경계를 단순화했습니다.',
+        text: '현장마다 따로 있던 처리 Docker와 감시 서버를 통합 API로 모았습니다.',
       },
       {
         signals: ['redis'],
-        text: 'Redis를 실시간 상태와 반복 조회의 완충 계층으로 사용해 동기 처리 병목을 줄였습니다.',
+        text: '검수 진행 상태와 반복 조회 데이터는 Redis에 두어 DB와 동기 처리 부담을 줄였습니다.',
+      },
+      {
+        signals: ['airflow'],
+        text: '배치 처리와 반복 운영 작업의 실행 일정을 Airflow로 관리했습니다.',
       },
       {
         signals: [
@@ -1267,7 +1287,7 @@ const projects: Project[] = [
           'object storage',
           'archive storage',
         ],
-        text: 'CloudFront와 계층형 Object Storage로 원본 데이터의 전송·보관 비용을 수명주기에 맞게 분리했습니다.',
+        text: '자주 보는 이미지는 CloudFront로 전달하고 오래된 원본은 Archive Storage로 옮겼습니다.',
       },
       {
         signals: ['cost'],
@@ -1292,16 +1312,16 @@ const projects: Project[] = [
     title: '철강 스크랩 AI 검수 POC',
     company: '지앤비아이텍',
     role: 'Fullstack Engineer',
-    perspective: 'A prototype that earns the real build',
+    perspective: '현장 영상으로 사업 가능성을 확인한 POC',
     archiveNote:
       '데모 화면이 아니라 현장 영상과 실제 모델을 묶은 실행 가능한 제품으로 사업 가능성을 증명했습니다.',
     summary:
       'RTSP 수신부터 프레임 캡처, AI 추론과 결과 표시까지 Windows 앱으로 구현했습니다.',
-    lead: '영상 입력부터 AI 결과 확인까지 실제 현장에서 검증할 수 있는 첫 제품을 빠르게 완성했습니다.',
+    lead: '아이디어 설명만으로는 사업 여부를 판단할 수 없어, 실제 CCTV 영상이 모델을 거쳐 검수 결과로 돌아오는 Windows 앱을 먼저 만들었습니다.',
     startingPoint:
-      '사업 가능성을 판단하려면 현장 CCTV 영상과 AI 모델을 연결한 실행 가능한 검수 앱이 필요했습니다.',
+      '정해진 제품 구조가 없는 상태에서 현장 영상 수신, 프레임 추출, 모델 호출, 결과 저장과 화면 표시까지 한 번에 검증해야 했습니다.',
     build:
-      'Flutter Windows에서 RTSP 영상을 받고 프레임을 캡처해 AI 추론과 DB 저장, 결과 표시까지 이어지는 POC를 구축했습니다.',
+      'Flutter Windows 앱에서 RTSP 영상을 받아 필요한 프레임을 캡처하고, AI 추론 요청과 DB 저장 뒤 결과를 다시 화면에 표시했습니다. 현장에 직접 가져가 실제 카메라와 모델로 동작을 확인했습니다.',
     outcome: 'POC 성공과 본사업 수주 기여 · 포상금 300만 원 수상',
     stack: ['Flutter Windows', 'RTSP', 'Frame Capture', 'AI Inference'],
     tags: ['ai', 'backend', 'flutter', 'rtsp', 'poc'],
@@ -1335,23 +1355,23 @@ const projects: Project[] = [
     title: 'RPA 실행 시간 예측',
     company: '지앤비아이텍',
     role: 'Project Lead · 4-person team',
-    perspective: 'Make invisible queues legible',
+    perspective: '겹치는 RPA 작업의 다음 실행 시간 계산',
     archiveNote:
       '자원을 공유하는 자동화 작업의 충돌을 시간표로 번역해, 보이지 않던 기다림을 운영 가능한 정보로 바꿨습니다.',
     summary:
       'UiPath 실행 이력과 로봇 이벤트를 수집해 작업의 예상 시작·종료 시간을 보여줬습니다.',
-    lead: '보이지 않던 로봇 작업 대기열을 시간 정보로 바꿔 운영자가 다음 실행을 예측할 수 있게 했습니다.',
+    lead: '같은 로봇을 쓰는 RPA 작업이 겹치면 하나가 밀리는데, 운영자는 다음 작업이 언제 시작될지 알 수 없었습니다. 실행 이력을 받아 시간표를 다시 계산했습니다.',
     startingPoint:
-      '여러 RPA 작업이 같은 로봇 자원을 사용하면서, 운영자는 어떤 작업이 언제 시작하고 끝날지 알기 어려웠습니다.',
+      '정해진 시간에 실행되는 작업도 앞 작업이 끝나지 않으면 대기해야 했습니다. 한 작업의 지연이 뒤 작업 전체에 영향을 주지만 UiPath 화면만으로는 변경된 시작·종료 시간을 보기 어려웠습니다.',
     build:
-      'UiPath 실행 이력과 로봇 이벤트를 웹훅으로 수집하고, 작업별 예상 시간을 계산해 캘린더에 표시했습니다.',
+      'UiPath 실행 이력과 로봇 이벤트를 웹훅으로 받았습니다. 먼저 비어 있는 robot을 배정하고, 자원이 겹치면 우선순위와 기존 예정 시간을 기준으로 뒤 작업의 시작·종료 시간을 연쇄 재계산했습니다. 계산 결과는 Vue 캘린더에 표시했습니다. 4인 팀 리드로 일정과 역할도 조율했습니다.',
     outcome: '예상 시작·종료 시간을 캘린더에서 확인하도록 구현',
     stack: ['UiPath', 'Webhook', 'Java', 'JPA', 'Vue'],
     tags: ['backend', 'platform', 'rpa', 'java', 'webhook', 'leadership'],
     matchProofs: [
       {
         signals: ['rpa', 'uipath', 'webhook'],
-        text: 'UiPath 실행 이력과 로봇 이벤트를 웹훅으로 수집해 예측 가능한 이벤트 흐름으로 바꿨습니다.',
+        text: 'UiPath 실행 이력과 robot 상태 변경을 웹훅으로 받아 계산에 사용했습니다.',
       },
       {
         signals: ['java', 'backend', 'jpa'],
@@ -1363,7 +1383,7 @@ const projects: Project[] = [
       },
       {
         signals: ['leadership'],
-        text: '4인 팀의 리드로 예측 로직, 이벤트 수집과 운영 화면의 경계를 조율했습니다.',
+        text: '4인 팀 리드로 예측 로직, 이벤트 수집과 캘린더 화면의 역할을 나누고 일정을 관리했습니다.',
       },
     ],
     flow: ['UiPath', 'Webhook', 'Event history', 'Prediction', 'Calendar'],
@@ -1378,16 +1398,16 @@ const projects: Project[] = [
     title: 'AI 시험 응시 시스템',
     company: '지앤비아이텍',
     role: 'Fullstack Engineer',
-    perspective: 'AI inside a complete desktop product',
+    perspective: 'AI 감독 기능을 시험 앱 안에 넣기',
     archiveNote:
       '모델을 따로 시연하지 않고 데스크톱 격리, 실시간 통신, 감독 흐름 안에 넣어 실제 시험 경험으로 완성했습니다.',
     summary:
       '사람·휴대폰 검출과 실시간 채팅을 포함한 시험 응시 클라이언트를 개발했습니다.',
-    lead: '시험 화면 안에서 객체 검출, 실시간 소통과 운영 상태가 함께 움직이는 응시 환경을 구축했습니다.',
+    lead: '모델 데모가 아니라 실제 시험을 치르는 Electron 앱 안에서 사람·휴대폰을 감지하고, 감독자와 실시간으로 상태를 주고받게 만들었습니다.',
     startingPoint:
-      '원격 시험에서 부정행위 징후를 감지하면서도 응시자와 감독자가 실시간으로 소통할 수 있는 데스크톱 환경이 필요했습니다.',
+      '응시 화면을 벗어나지 않은 상태에서 카메라 영상을 검사하고, 감지 이벤트와 채팅을 감독 화면으로 보내야 했습니다. AI 실행 실패가 시험 진행 자체를 막아서도 안 됐습니다.',
     build:
-      '약 10만 장의 학습 데이터를 준비해 YOLOv5 모델을 학습하고, Vue 3와 Electron, Redis와 WebSocket으로 응시 클라이언트와 운영 기능을 만들었습니다.',
+      '약 10만 장의 데이터로 사람·휴대폰 YOLOv5 모델을 학습했습니다. Vue 3와 Electron으로 응시 앱을 만들고 로컬 AI 프로세스의 시작·종료와 오류를 관리했습니다. Redis와 WebSocket으로 감지 이벤트, 응시 상태와 감독자 채팅을 실시간 전송했습니다.',
     outcome: '사람·휴대폰 검출 모델 mAP 95% 달성',
     stack: ['YOLOv5', 'Vue 3', 'Electron', 'Redis', 'WebSocket'],
     tags: ['ai', 'backend', 'platform', 'vue', 'electron', 'redis'],
@@ -1398,7 +1418,7 @@ const projects: Project[] = [
       },
       {
         signals: ['electron'],
-        text: 'Electron 프로세스 경계 안에 시험 화면과 AI 감지 기능을 담아 배포 가능한 응시 앱으로 만들었습니다.',
+        text: 'Electron이 시험 화면과 로컬 AI 프로세스를 함께 실행하고 종료 시 정리하도록 만들었습니다.',
       },
       {
         signals: ['vue', 'vue 3'],
@@ -1427,26 +1447,45 @@ const projects: Project[] = [
     title: '복지로 차세대 시스템',
     company: '아침소프트',
     role: 'Freelance Engineer',
-    perspective: 'Fast, shared infrastructure for public traffic',
+    perspective: '대국민 통합검색과 공통 기능 개발',
     archiveNote:
       '기능별 화면보다 검색·외부 연계·공통 응답 규칙을 먼저 세워 많은 사용자가 쓰는 서비스의 기반을 만들었습니다.',
     summary: '통합검색, 공공데이터 연계 API와 공통·관리자 화면을 개발했습니다.',
-    lead: '대국민 서비스의 검색과 외부 데이터 연계를 빠르고 일관된 공통 기반 위에 올렸습니다.',
+    lead: '복지로 차세대 구축에서 메인 화면과 공통 기능, 통합검색과 공공데이터 연계를 개발했습니다. 반복 작업을 줄이는 도구도 따로 만들어 팀에서 사용했습니다.',
     startingPoint:
-      '차세대 전환 과정에서 통합검색, 공공데이터 연계와 여러 공통 화면을 같은 기준으로 구축해야 했습니다.',
+      '여러 업무 화면이 함께 개발되는 대형 프로젝트라 공통 응답 형식과 외부 연계 규칙이 필요했습니다. 통합검색은 원천 DB를 매번 직접 조회하지 않고 검색용 인덱스를 주기적으로 갱신하는 구조였습니다.',
     build:
-      '검색과 공공데이터 API, 관리자 기능과 공통 화면을 개발하고 대국민 요청의 응답 시간을 관리했습니다.',
+      '원천 데이터를 주기적으로 조회해 전문검색 인덱스를 갱신하고 검색 API를 개발했습니다. 공공데이터 연계 API, 관리자·공통 화면과 메인 페이지도 맡았습니다. 제품명은 오래되어 확인할 소스가 없어 특정 검색엔진 이름 대신 실제 동작 구조만 적었습니다.',
     outcome: '대국민 요청 응답 속도 40ms 이내 달성',
-    stack: ['Integrated Search', 'Public Data API', 'Admin System', 'ERP'],
-    tags: ['backend', 'platform', 'public-data', 'search', 'erp'],
+    stack: [
+      'Full-text Search',
+      'Search Index',
+      'Public Data API',
+      'Admin System',
+      'ERP',
+    ],
+    tags: [
+      'backend',
+      'platform',
+      'public-data',
+      'search',
+      'full-text-search',
+      'search-index',
+      'erp',
+    ],
     matchProofs: [
       {
-        signals: ['search', 'integrated search'],
-        text: '여러 서비스에 흩어진 정보를 통합검색 경계로 모으고 대국민 요청을 40ms 이내로 응답했습니다.',
+        signals: [
+          'search',
+          'integrated search',
+          'full-text-search',
+          'search-index',
+        ],
+        text: '원천 데이터를 주기적으로 수집해 전문검색 인덱스를 갱신하고 대국민 검색 요청을 40ms 이내로 응답했습니다.',
       },
       {
         signals: ['public-data', 'public data api', 'backend'],
-        text: '외부 공공데이터의 형식과 장애를 내부 공통 API가 흡수하도록 연계 계층을 만들었습니다.',
+        text: '외부 공공데이터의 서로 다른 응답 형식과 오류를 공통 API에서 정리했습니다.',
       },
       {
         signals: ['platform', 'admin system', 'erp'],
@@ -1454,10 +1493,10 @@ const projects: Project[] = [
       },
     ],
     flow: [
-      'Public request',
+      'Scheduled query',
+      'Search index',
+      'Full-text search',
       'Common API',
-      'Search',
-      'External data',
       'Response',
     ],
     colors: ['#77d9c7', '#7ab8ff', '#dae87a'],
@@ -1471,16 +1510,16 @@ const projects: Project[] = [
     title: '결제·회계 자동 연계',
     company: 'DBVISION',
     role: 'Backend Engineer',
-    perspective: 'Correctness before convenience',
+    perspective: '결제 결과를 회계까지 정확히 연결',
     archiveNote:
       '결제 성공을 화면 이벤트로 보지 않고 회계 반영과 중복 요청 제어까지 하나의 데이터 정합성 문제로 다뤘습니다.',
     summary:
       'BankPay와 EasyPay 결제 결과를 회계 처리까지 연결하고 중복 예약을 제어했습니다.',
-    lead: '결제의 성공과 실패가 회계 데이터에 정확히 이어지도록, 동시 요청까지 고려한 백엔드를 만들었습니다.',
+    lead: 'BankPay와 EasyPay 결제 결과를 사람이 다시 회계에 옮기지 않도록 연결했습니다. 동시에 들어온 요청이 같은 예약을 두 번 처리하지 않게 하는 것도 함께 맡았습니다.',
     startingPoint:
-      '모바일과 PC 결제 결과를 회계 업무로 다시 옮기는 과정이 필요했고, 동시에 들어오는 요청은 중복 예약과 데이터 불일치를 만들 수 있었습니다.',
+      '결제 채널마다 응답 형식과 성공 조건이 달랐고, 결제 성공 뒤 회계 반영까지 상태가 끊겨 있었습니다. 같은 시점에 들어온 요청은 중복 예약과 금액 불일치를 만들 수 있었습니다.',
     build:
-      'BankPay와 EasyPay를 적용하고 결제 결과를 회계 처리에 자동 연계했습니다. 동시 요청의 중복 예약을 막는 제어 로직도 구현했습니다.',
+      '두 결제사의 응답을 각각 검증한 뒤 내부 결제 상태로 정리하고 회계 처리까지 자동으로 이어지게 했습니다. 예약과 결제 상태 전이를 Java 백엔드에서 관리하고 동시 요청은 중복 처리되지 않도록 제어했습니다.',
     outcome: '결제·회계 자동 연계 · 동시성 제어로 데이터 정합성 유지',
     stack: ['Java', 'BankPay', 'EasyPay', 'Accounting', 'Concurrency Control'],
     tags: [
@@ -1506,7 +1545,7 @@ const projects: Project[] = [
       },
       {
         signals: ['java', 'backend'],
-        text: 'Java 백엔드에서 결제사 응답 검증, 업무 상태 전이와 회계 연계 경계를 구현했습니다.',
+        text: 'Java 백엔드에서 결제사 응답을 검증하고 결제 상태가 회계 처리까지 이어지게 했습니다.',
       },
     ],
     flow: [
@@ -1665,6 +1704,9 @@ const readableTextColor = (hex: string) => {
 const readUrlState = (params: URLSearchParams) => {
   const company = params.get('company') ?? params.get('회사명') ?? '';
   const companyTheme = companyThemes[company.toLowerCase()];
+  const scopeParam = params.get('scope');
+  const scope: ProjectScope =
+    scopeParam === 'work' || scopeParam === 'personal' ? scopeParam : 'all';
   const signals = [
     ...params.getAll('signal'),
     ...params.getAll('signals'),
@@ -1679,6 +1721,7 @@ const readUrlState = (params: URLSearchParams) => {
   return {
     company,
     signals: [...new Set(signals)],
+    scope,
     showAll: params.get('view') === 'all',
     primaryColor:
       normalizeHexColor(
@@ -1711,6 +1754,9 @@ export default function Home() {
   const urlState = readUrlState(new URLSearchParams(searchParams.toString()));
   const { company, signals } = urlState;
   const [activeFilters, setActiveFilters] = useState(signals);
+  const [projectScope, setProjectScope] = useState<ProjectScope>(
+    urlState.scope,
+  );
   const [tagQuery, setTagQuery] = useState('');
   const [tagPickerOpen, setTagPickerOpen] = useState(false);
   const targets = expandedSignals(activeFilters, company);
@@ -1738,6 +1784,7 @@ export default function Home() {
   const [activeSection, setActiveSection] = useState<'projects' | 'profile'>(
     'projects',
   );
+  const [showBackToTop, setShowBackToTop] = useState(false);
   const showAll = viewOverride ?? (urlState.showAll || !hasFocus);
   const themeStyle = {
     '--brand': urlState.primaryColor,
@@ -1757,13 +1804,34 @@ export default function Home() {
       ),
     }))
     .sort((a, b) => b.score - a.score || a.index - b.index);
-  const matched = ranked.filter((project) => project.score > 0);
+  const scopedRanked = ranked.filter((project) => {
+    if (projectScope === 'personal') return project.company === 'Independent';
+    if (projectScope === 'work') return project.company !== 'Independent';
+    return true;
+  });
+  const matched = scopedRanked.filter((project) => project.score > 0);
   const rankedProjects =
-    showAll || targets.size === 0 || matched.length === 0 ? ranked : matched;
+    showAll || targets.size === 0 || matched.length === 0
+      ? scopedRanked
+      : matched;
 
   const chronologyProjects = [...rankedProjects].sort(
     (a, b) => a.index - b.index,
   );
+  const chronologyGroups = chronologyProjects.reduce<
+    Array<{
+      year: string;
+      projects: (typeof chronologyProjects)[number][];
+    }>
+  >((groups, project) => {
+    const currentGroup = groups.at(-1);
+    if (currentGroup?.year === project.timelineYear) {
+      currentGroup.projects.push(project);
+    } else {
+      groups.push({ year: project.timelineYear, projects: [project] });
+    }
+    return groups;
+  }, []);
   const selectedProject =
     rankedProjects.find((project) => project.id === selectedProjectId) ??
     rankedProjects[0];
@@ -1776,17 +1844,60 @@ export default function Home() {
   )
     ? activeProjectId
     : selectedProject.id;
+  const currentTimelineYear =
+    rankedProjects.find((project) => project.id === currentProjectId)
+      ?.timelineYear ?? rankedProjects[0].timelineYear;
+  const projectYearGroups = [...rankedProjects]
+    .sort(
+      (a, b) =>
+        Number(b.timelineYear) - Number(a.timelineYear) ||
+        b.score - a.score ||
+        a.index - b.index,
+    )
+    .reduce<
+      Array<{
+        year: string;
+        projects: (typeof rankedProjects)[number][];
+      }>
+    >((groups, project) => {
+      const currentGroup = groups.at(-1);
+      if (currentGroup?.year === project.timelineYear) {
+        currentGroup.projects.push(project);
+      } else {
+        groups.push({ year: project.timelineYear, projects: [project] });
+      }
+      return groups;
+    }, []);
   const normalizedTagQuery = tagQuery.trim().toLowerCase();
   const filteredTags = normalizedTagQuery
     ? availableTags
         .filter((tag) =>
           `${tag} ${tagLabel(tag)}`.toLowerCase().includes(normalizedTagQuery),
         )
-        .slice(0, 12)
+        .slice(0, 8)
     : [];
   const pickerTags = normalizedTagQuery
     ? filteredTags
-    : availableTags.filter((tag) => !activeFilters.includes(tag)).slice(0, 10);
+    : [...availableTags]
+        .filter((tag) => !activeFilters.includes(tag))
+        .sort((a, b) => {
+          const countA = scopedRanked.filter((project) =>
+            projectMatchesTarget(project, a),
+          ).length;
+          const countB = scopedRanked.filter((project) =>
+            projectMatchesTarget(project, b),
+          ).length;
+          return countB - countA || tagLabel(a).localeCompare(tagLabel(b));
+        })
+        .slice(0, 7);
+
+  const projectCounts = {
+    all: projects.length,
+    work: projects.filter((project) => project.company !== 'Independent')
+      .length,
+    personal: projects.filter((project) => project.company === 'Independent')
+      .length,
+  };
 
   useEffect(() => {
     document.title = company
@@ -1796,6 +1907,9 @@ export default function Home() {
 
   useEffect(() => {
     const updateActiveSection = () => {
+      setShowBackToTop(
+        window.scrollY > Math.max(640, window.innerHeight * 0.7),
+      );
       const profile = document.getElementById('profile');
       if (!profile) return;
       setActiveSection(
@@ -1876,6 +1990,22 @@ export default function Home() {
       `${window.location.pathname}${query ? `?${query}` : ''}`,
     );
     setViewOverride(nextShowAll);
+  };
+
+  const selectProjectScope = (scope: ProjectScope) => {
+    const params = new URLSearchParams(window.location.search);
+    if (scope === 'all') params.delete('scope');
+    else params.set('scope', scope);
+    const query = params.toString();
+    window.history.replaceState(
+      {},
+      '',
+      `${window.location.pathname}${query ? `?${query}` : ''}`,
+    );
+    setProjectScope(scope);
+    setSelectedProjectId(null);
+    setActiveProjectId(null);
+    setDrawerOpen(false);
   };
 
   const updateFilters = (nextFilters: string[]) => {
@@ -2131,12 +2261,23 @@ export default function Home() {
                   id="stack-options"
                   className="stack-filter__results"
                   aria-label="검색된 기술"
+                  role="listbox"
                 >
+                  <header>
+                    <span>
+                      {normalizedTagQuery
+                        ? '검색 결과'
+                        : '이 범위에서 자주 쓴 기술'}
+                    </span>
+                    <small>{pickerTags.length}개</small>
+                  </header>
                   {pickerTags.length > 0 ? (
                     pickerTags.map((tag) => (
                       <button
                         key={tag}
                         type="button"
+                        role="option"
+                        aria-selected={activeFilters.includes(tag)}
                         className={
                           activeFilters.includes(tag) ? 'is-active' : undefined
                         }
@@ -2145,7 +2286,7 @@ export default function Home() {
                         <span>{tagLabel(tag)}</span>
                         <small>
                           {
-                            projects.filter((project) =>
+                            scopedRanked.filter((project) =>
                               projectMatchesTarget(project, tag),
                             ).length
                           }{' '}
@@ -2182,39 +2323,105 @@ export default function Home() {
           <aside className="timeline" aria-label="프로젝트 연대기">
             <div className="timeline__sticky">
               <p>Chronology</p>
-              <div>
-                {chronologyProjects.map((project) => (
-                  <button
-                    key={project.id}
-                    type="button"
-                    className={
-                      project.id === currentProjectId ? 'is-current' : undefined
-                    }
-                    onClick={() => jumpToProject(project.id)}
-                  >
-                    <time>{project.timelineYear}</time>
-                    <i aria-hidden="true" />
-                    <span>{project.title}</span>
-                  </button>
+              <div className="timeline__groups">
+                {chronologyGroups.map((group) => (
+                  <section className="timeline-year" key={group.year}>
+                    <button
+                      type="button"
+                      className={`timeline-year__header${
+                        group.projects.some(
+                          (project) => project.id === currentProjectId,
+                        )
+                          ? ' is-current'
+                          : ''
+                      }`}
+                      onClick={() => jumpToProject(group.projects[0].id)}
+                    >
+                      <time>{group.year}</time>
+                    </button>
+                    <div className="timeline-year__projects">
+                      {group.projects.map((project) => (
+                        <button
+                          key={project.id}
+                          type="button"
+                          className={
+                            project.id === currentProjectId
+                              ? 'is-current'
+                              : undefined
+                          }
+                          onClick={() => jumpToProject(project.id)}
+                        >
+                          <span>{project.title}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </section>
                 ))}
               </div>
             </div>
           </aside>
 
-          <div className="project-list">
-            {rankedProjects.map((project, index) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                index={index}
-                selected={project.id === currentProjectId}
-                focusLabel={focusLabel}
-                matchProofs={
-                  hasFocus ? projectMatchProofs(project, targets) : []
-                }
-                onOpen={openProject}
-              />
-            ))}
+          <div className="project-column">
+            <nav className="project-scope" aria-label="프로젝트 종류">
+              <span>Project category</span>
+              <div role="tablist" aria-label="프로젝트 범위 선택">
+                {(
+                  [
+                    ['all', '전체'],
+                    ['work', '업무 프로젝트'],
+                    ['personal', '개인 프로젝트'],
+                  ] as const
+                ).map(([scope, label]) => (
+                  <button
+                    key={scope}
+                    type="button"
+                    role="tab"
+                    aria-selected={projectScope === scope}
+                    className={projectScope === scope ? 'is-active' : undefined}
+                    onClick={() => selectProjectScope(scope)}
+                  >
+                    <span>{label}</span>
+                    <small>
+                      {String(projectCounts[scope]).padStart(2, '0')}
+                    </small>
+                  </button>
+                ))}
+              </div>
+            </nav>
+
+            <div className="project-list">
+              {projectYearGroups.map((group) => (
+                <section
+                  key={group.year}
+                  className={`project-year-group${
+                    group.year === currentTimelineYear ? ' is-current' : ''
+                  }`}
+                  aria-label={`${group.year}년 프로젝트`}
+                >
+                  <header className="project-year-group__header">
+                    <span>{group.year}</span>
+                    <i aria-hidden="true" />
+                  </header>
+                  <div>
+                    {group.projects.map((project) => (
+                      <ProjectCard
+                        key={project.id}
+                        project={project}
+                        index={rankedProjects.findIndex(
+                          (item) => item.id === project.id,
+                        )}
+                        selected={project.id === currentProjectId}
+                        focusLabel={focusLabel}
+                        matchProofs={
+                          hasFocus ? projectMatchProofs(project, targets) : []
+                        }
+                        onOpen={openProject}
+                      />
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -2323,6 +2530,26 @@ export default function Home() {
           </footer>
         </div>
       </section>
+
+      {showBackToTop && (
+        <button
+          type="button"
+          className="back-to-top"
+          aria-label="페이지 맨 위로 이동"
+          onClick={() =>
+            window.scrollTo({
+              top: 0,
+              behavior: window.matchMedia('(prefers-reduced-motion: reduce)')
+                .matches
+                ? 'auto'
+                : 'smooth',
+            })
+          }
+        >
+          <span aria-hidden="true">↑</span>
+          <small>Top</small>
+        </button>
+      )}
     </main>
   );
 }
@@ -2387,7 +2614,7 @@ function ProjectCard({
         )}
 
         {matchProofs.length === 0 && (
-          <span className="project-card__note">{project.archiveNote}</span>
+          <span className="project-card__note">{project.summary}</span>
         )}
 
         <span className="project-card__stack">
@@ -2398,11 +2625,11 @@ function ProjectCard({
 
         <span className="project-card__footer">
           <span>
-            <small>Proof in operation</small>
+            <small>확인된 결과</small>
             <strong>{project.outcome}</strong>
           </span>
           <span className="project-card__action" aria-hidden="true">
-            Open case ↗
+            자세히 보기 ↗
           </span>
         </span>
       </span>
@@ -2440,11 +2667,11 @@ function ProjectDrawer({
       >
         <header className="project-drawer__header">
           <div>
-            <span>Experience / {String(index + 1).padStart(2, '0')}</span>
+            <span>프로젝트 / {String(index + 1).padStart(2, '0')}</span>
             <span>{project.period}</span>
           </div>
           <button type="button" onClick={onClose} tabIndex={open ? 0 : -1}>
-            Close <span aria-hidden="true">×</span>
+            닫기 <span aria-hidden="true">×</span>
           </button>
         </header>
 
@@ -2457,32 +2684,28 @@ function ProjectDrawer({
 
           <dl className="project-drawer__facts">
             <div>
-              <dt>Role</dt>
+              <dt>담당</dt>
               <dd>{project.role}</dd>
             </div>
             <div>
-              <dt>Status</dt>
-              <dd>{project.status}</dd>
+              <dt>상태</dt>
+              <dd>{project.status === 'In operation' ? '운영 중' : '완료'}</dd>
             </div>
           </dl>
 
           <div className="project-drawer__story">
             <section>
-              <span>01 / Starting point</span>
+              <h3>문제가 뭐였나</h3>
               <p>{project.startingPoint}</p>
             </section>
             <section>
-              <span>02 / What I built</span>
+              <h3>내가 한 일</h3>
               <p>{project.build}</p>
             </section>
           </div>
 
           <section className="project-drawer__stack">
-            <span>03 / Stack decisions</span>
-            <p>
-              기술 이름만 나열하지 않고, 이 프로젝트에서 실제로 맡았던 역할을
-              정리했습니다.
-            </p>
+            <h3>구현에서 신경 쓴 것</h3>
             <ul>
               {project.matchProofs.map((proof) => (
                 <li key={proof.text}>
@@ -2494,8 +2717,8 @@ function ProjectDrawer({
           </section>
 
           <section className="project-drawer__outcome">
-            <span>04 / Outcome</span>
-            <strong>{project.outcome}</strong>
+            <h3>실제 결과</h3>
+            <p>{project.outcome}</p>
           </section>
         </div>
       </dialog>
