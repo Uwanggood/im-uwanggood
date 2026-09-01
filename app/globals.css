@@ -920,7 +920,8 @@ button {
 .project-card:focus-visible,
 .project-scope button:focus-visible,
 .stack-filter button:focus-visible,
-.project-drawer button:focus-visible {
+.project-drawer button:focus-visible,
+.media-lightbox button:focus-visible {
   outline: 2px solid var(--brand);
   outline-offset: -2px;
 }
@@ -1347,6 +1348,7 @@ button {
 .project-drawer__header button,
 .project-drawer__eyebrow,
 .project-drawer__facts dt,
+.project-drawer__media h3,
 .project-drawer__outcome h3,
 .project-drawer__story h3,
 .project-drawer__stack h3 {
@@ -1429,9 +1431,177 @@ button {
 }
 
 .project-drawer__outcome h3,
+.project-drawer__media h3,
 .project-drawer__story h3,
 .project-drawer__stack h3 {
   margin: 0;
+}
+
+.project-drawer__media {
+  margin-top: 44px;
+}
+
+.project-drawer__media-grid {
+  display: grid;
+  gap: 24px;
+  margin-top: 18px;
+}
+
+.project-drawer__media figure {
+  margin: 0;
+}
+
+.project-drawer__media-frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid #4a4944;
+  background: #0c0c0c;
+  color: #f5f3ec;
+  cursor: zoom-in;
+}
+
+.project-drawer__media img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  transition: transform 240ms var(--ease);
+}
+
+.project-drawer__media-frame > span {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  padding: 7px 9px;
+  border: 1px solid rgb(255 255 255 / 24%);
+  background: rgb(12 12 12 / 82%);
+  color: #f5f3ec;
+  font-size: 0.66rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  backdrop-filter: blur(8px);
+}
+
+.project-drawer__media-frame:hover img {
+  transform: scale(1.012);
+}
+
+.project-drawer__media figcaption {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 12px;
+  padding: 13px 0 0;
+  color: #9c9990;
+  font-size: 0.74rem;
+  line-height: 1.6;
+}
+
+.project-drawer__media figcaption span {
+  color: var(--brand);
+  font-variant-numeric: tabular-nums;
+}
+
+.project-drawer__media figcaption p {
+  margin: 0;
+  word-break: keep-all;
+}
+
+.media-lightbox {
+  position: fixed;
+  z-index: 140;
+  inset: 0;
+  visibility: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition:
+    opacity 180ms var(--ease),
+    visibility 0s linear 180ms;
+}
+
+.media-lightbox.is-open {
+  visibility: visible;
+  pointer-events: auto;
+  opacity: 1;
+  transition-delay: 0s;
+}
+
+.media-lightbox__backdrop {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: rgb(5 5 5 / 88%);
+  cursor: zoom-out;
+  backdrop-filter: blur(16px);
+}
+
+.media-lightbox__panel {
+  position: absolute;
+  inset: clamp(12px, 3vw, 36px);
+  display: grid;
+  width: auto;
+  height: auto;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  grid-template-rows: 58px minmax(0, 1fr) auto;
+  overflow: hidden;
+  border: 1px solid #343330;
+  background: #0d0d0d;
+  color: #f5f3ec;
+}
+
+.media-lightbox__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 18px;
+  border-bottom: 1px solid #343330;
+  color: #929087;
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.media-lightbox__header button {
+  padding: 8px 0 8px 16px;
+  border: 0;
+  background: transparent;
+  color: #f5f3ec;
+  font: inherit;
+  cursor: pointer;
+}
+
+.media-lightbox__header button span {
+  margin-left: 8px;
+  color: var(--brand);
+  font-size: 1rem;
+}
+
+.media-lightbox__canvas {
+  position: relative;
+  min-height: 0;
+  margin: 18px;
+  background: #080808;
+}
+
+.media-lightbox__canvas img {
+  object-fit: contain;
+}
+
+.media-lightbox__caption {
+  margin: 0;
+  padding: 0 18px 18px;
+  color: #aaa79e;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  word-break: keep-all;
 }
 
 .project-drawer__outcome p {
@@ -2649,6 +2819,23 @@ button {
 
   .project-drawer__stack ul {
     grid-template-columns: 1fr;
+  }
+
+  .media-lightbox__panel {
+    inset: 0;
+    border: 0;
+  }
+
+  .media-lightbox__header {
+    min-height: 64px;
+  }
+
+  .media-lightbox__canvas {
+    margin: 8px;
+  }
+
+  .media-lightbox__caption {
+    padding: 8px 14px 16px;
   }
 
   .code-drawer__panel {

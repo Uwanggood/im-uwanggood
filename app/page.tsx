@@ -7,11 +7,18 @@ import {
   type CSSProperties,
   type ReactNode,
 } from 'react';
+import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 
 type MatchProof = {
   signals: string[];
   text: string;
+};
+
+type ProjectMedia = {
+  src: string;
+  alt: string;
+  caption: string;
 };
 
 export type Project = {
@@ -35,6 +42,7 @@ export type Project = {
   matchProofs: MatchProof[];
   flow: string[];
   colors: [string, string, string];
+  media?: ProjectMedia[];
 };
 
 type ProjectScope = 'all' | 'work' | 'personal';
@@ -877,6 +885,32 @@ const projects: Project[] = [
       'Version archive',
     ],
     colors: ['#ffcf7b', '#ff8b9a', '#8e9cff'],
+    media: [
+      {
+        src: '/project-media/esther-erd.png',
+        alt: 'Esther에서 여러 스키마와 테이블 관계를 한 화면에 표시한 ERD',
+        caption:
+          '11개 스키마와 178개 테이블의 관계를 스키마 영역별로 탐색하는 ERD 화면.',
+      },
+      {
+        src: '/project-media/esther-database-overview.png',
+        alt: 'Esther의 PostgreSQL 데이터베이스 상태 요약 화면',
+        caption:
+          '용량·스키마·테이블·컬럼·인덱스와 용어사전 정합성을 함께 확인하는 데이터베이스 요약.',
+      },
+      {
+        src: '/project-media/esther-glossary.png',
+        alt: 'Esther에서 표준 용어와 영문명, 축약어를 관리하는 용어사전',
+        caption:
+          '1만 4천여 개 표준 용어의 한글명·영문명·축약어와 타입 후보를 관리하는 용어사전.',
+      },
+      {
+        src: '/project-media/esther-change-history.png',
+        alt: 'Esther에서 데이터베이스 변경 내역과 생성 SQL을 확인하는 화면',
+        caption:
+          '적용한 테이블·컬럼 변경과 실제 migration SQL을 버전별로 다시 확인하는 변경 기록.',
+      },
+    ],
   },
   {
     id: 'bucket-studio',
@@ -934,6 +968,20 @@ const projects: Project[] = [
       'Safe mutation',
     ],
     colors: ['#77d9c7', '#6aa8ff', '#dcff83'],
+    media: [
+      {
+        src: '/project-media/bucket-studio-browser.png',
+        alt: 'Bucket Studio에서 여러 오브젝트 스토리지와 버킷을 탐색하는 화면',
+        caption:
+          '여러 S3-compatible provider와 bucket을 한 화면에서 탐색하는 데스크톱 클라이언트.',
+      },
+      {
+        src: '/project-media/bucket-studio-json-editor.png',
+        alt: 'Bucket Studio에서 오브젝트 스토리지의 JSON 파일을 편집하는 화면',
+        caption:
+          '스토리지의 JSON 파일을 내려받지 않고 검증·정리·수정한 뒤 다시 저장하는 편집 화면.',
+      },
+    ],
   },
   {
     id: 'copylight',
@@ -981,6 +1029,20 @@ const projects: Project[] = [
     ],
     flow: ['Copy', 'Capture', 'Search / edit', 'Transform', 'Paste back'],
     colors: ['#8f9dff', '#ef8fff', '#78e0d0'],
+    media: [
+      {
+        src: '/project-media/copylight-workspace.png',
+        alt: '개발 도구 아래에 열린 Copylight 클립보드 패널 화면',
+        caption:
+          '작업 중인 앱을 벗어나지 않고 클립보드 기록을 검색하고 다시 사용하는 패널.',
+      },
+      {
+        src: '/project-media/copylight-editor.png',
+        alt: 'Copylight에서 클립보드 텍스트를 편집하는 전체 화면 편집기',
+        caption:
+          '복사한 텍스트를 별도 편집기로 옮기지 않고 바로 수정하고 저장하는 화면.',
+      },
+    ],
   },
   {
     id: 'path-doctor',
@@ -1020,6 +1082,20 @@ const projects: Project[] = [
     ],
     flow: ['Target', 'DNS / Ping', 'Route trace', 'Explain', 'History'],
     colors: ['#65d3ff', '#7f8cff', '#f4de75'],
+    media: [
+      {
+        src: '/project-media/path-doctor-dashboard.png',
+        alt: 'Path Doctor에서 DNS, 응답 시간, HTTP 상태와 경로를 진단한 대시보드',
+        caption:
+          '주소 하나로 DNS·ping·HTTP·route 결과와 다음 확인 항목을 함께 보여주는 진단 대시보드.',
+      },
+      {
+        src: '/project-media/path-doctor-route-analysis.png',
+        alt: 'Path Doctor가 네트워크 홉별 지연과 차단 구간을 표시한 경로 분석 화면',
+        caption:
+          '홉별 지연을 경로로 시각화하고 느려진 구간과 응답이 막힌 장비를 구분한 화면.',
+      },
+    ],
   },
   {
     id: 'mobile-ai-inspection',
@@ -1176,6 +1252,20 @@ const projects: Project[] = [
     ],
     flow: ['Raw data', 'Auto labeling', 'Review', 'Approval', 'Dataset export'],
     colors: ['#ff8e9c', '#78d6ff', '#ffe99a'],
+    media: [
+      {
+        src: '/project-media/stitch-labeling-workspace.png',
+        alt: 'Stitch에서 의류 이미지의 영역과 부위를 라벨링하는 작업 화면',
+        caption:
+          '원본 이미지 위에서 polygon을 수정하고 semantic part를 연결하는 라벨링 작업 화면.',
+      },
+      {
+        src: '/project-media/stitch-project-workspace.png',
+        alt: 'Stitch에서 작업자에게 배정된 철스크랩 이미지 작업을 탐색하는 화면',
+        caption:
+          '배정된 원천 데이터를 상태·태그와 함께 탐색하고 라벨링 작업으로 진입하는 작업자 홈.',
+      },
+    ],
   },
   {
     id: 'vehicle-tracking',
@@ -1225,6 +1315,20 @@ const projects: Project[] = [
       'Inspection state',
     ],
     colors: ['#ffb56b', '#ff718f', '#cda8ff'],
+    media: [
+      {
+        src: '/project-media/vehicle-grapple-detection.png',
+        alt: '고철 하차 현장에서 차량과 그라플을 함께 검출하고 추적하는 화면',
+        caption:
+          '차량과 그라플을 동시에 검출하고 PTZ 이동 방향과 거리를 표시한 현장 추적 화면.',
+      },
+      {
+        src: '/project-media/vehicle-license-plate-detection.png',
+        alt: '현장 카메라 영상에서 화물차 번호판을 검출하고 인식한 화면',
+        caption:
+          '차량 진입 영상에서 번호판 영역과 문자열을 검출해 자동 검수 시작에 연결한 화면.',
+      },
+    ],
   },
   {
     id: 'legacy-modernization',
@@ -1776,6 +1880,7 @@ export default function Home() {
   } | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [codeDrawerOpen, setCodeDrawerOpen] = useState(false);
+  const [lightboxMedia, setLightboxMedia] = useState<ProjectMedia | null>(null);
   const [selectedCodeProofId, setSelectedCodeProofId] = useState(
     codeProofs[0].id,
   );
@@ -1785,6 +1890,8 @@ export default function Home() {
     'projects',
   );
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const overlayOpen =
+    drawerOpen || codeDrawerOpen || lightboxMedia !== null;
   const showAll = viewOverride ?? (urlState.showAll || !hasFocus);
   const themeStyle = {
     '--brand': urlState.primaryColor,
@@ -1962,21 +2069,29 @@ export default function Home() {
   }, [projectIdsKey]);
 
   useEffect(() => {
-    if (!drawerOpen && !codeDrawerOpen) return;
-    const previousOverflow = document.body.style.overflow;
+    if (!drawerOpen && !codeDrawerOpen && !lightboxMedia) return;
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key !== 'Escape') return;
+      if (lightboxMedia) {
+        setLightboxMedia(null);
+        return;
+      }
       setDrawerOpen(false);
       setCodeDrawerOpen(false);
     };
 
-    document.body.style.overflow = 'hidden';
     window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [drawerOpen, codeDrawerOpen, lightboxMedia]);
+
+  useEffect(() => {
+    if (!overlayOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = previousOverflow;
-      window.removeEventListener('keydown', closeOnEscape);
     };
-  }, [drawerOpen, codeDrawerOpen]);
+  }, [overlayOpen]);
 
   const toggleView = () => {
     const nextShowAll = !showAll;
@@ -2005,6 +2120,7 @@ export default function Home() {
     setProjectScope(scope);
     setSelectedProjectId(null);
     setActiveProjectId(null);
+    setLightboxMedia(null);
     setDrawerOpen(false);
   };
 
@@ -2026,6 +2142,7 @@ export default function Home() {
     );
     setActiveFilters(uniqueFilters);
     setViewOverride(false);
+    setLightboxMedia(null);
     setDrawerOpen(false);
   };
 
@@ -2042,6 +2159,7 @@ export default function Home() {
   const openProject = (projectId: string) => {
     setSelectedProjectId(projectId);
     setActiveProjectId(projectId);
+    setLightboxMedia(null);
     setCodeDrawerOpen(false);
     setDrawerOpen(true);
   };
@@ -2430,7 +2548,16 @@ export default function Home() {
         project={selectedProject}
         index={selectedProjectIndex}
         open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
+        onMediaOpen={setLightboxMedia}
+        onClose={() => {
+          setLightboxMedia(null);
+          setDrawerOpen(false);
+        }}
+      />
+
+      <MediaLightbox
+        media={lightboxMedia}
+        onClose={() => setLightboxMedia(null)}
       />
 
       <CodeDrawer
@@ -2641,11 +2768,13 @@ function ProjectDrawer({
   project,
   index,
   open,
+  onMediaOpen,
   onClose,
 }: {
   project: Project;
   index: number;
   open: boolean;
+  onMediaOpen: (media: ProjectMedia) => void;
   onClose: () => void;
 }) {
   return (
@@ -2693,6 +2822,41 @@ function ProjectDrawer({
             </div>
           </dl>
 
+          {project.media?.length ? (
+            <section
+              className="project-drawer__media"
+              aria-label={`${project.title} 작동 화면`}
+            >
+              <h3>작동 화면</h3>
+              <div className="project-drawer__media-grid">
+                {project.media.map((media, mediaIndex) => (
+                  <figure key={media.src}>
+                    <button
+                      type="button"
+                      className="project-drawer__media-frame"
+                      aria-label={`이미지 확대: ${media.caption}`}
+                      aria-haspopup="dialog"
+                      onClick={() => onMediaOpen(media)}
+                    >
+                      <Image
+                        src={media.src}
+                        alt={media.alt}
+                        width={1920}
+                        height={1080}
+                        sizes="(max-width: 760px) 100vw, 760px"
+                      />
+                      <span aria-hidden="true">확대 ↗</span>
+                    </button>
+                    <figcaption>
+                      <span>{String(mediaIndex + 1).padStart(2, '0')}</span>
+                      <p>{media.caption}</p>
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
+            </section>
+          ) : null}
+
           <div className="project-drawer__story">
             <section>
               <h3>문제가 뭐였나</h3>
@@ -2721,6 +2885,56 @@ function ProjectDrawer({
             <p>{project.outcome}</p>
           </section>
         </div>
+      </dialog>
+    </div>
+  );
+}
+
+function MediaLightbox({
+  media,
+  onClose,
+}: {
+  media: ProjectMedia | null;
+  onClose: () => void;
+}) {
+  return (
+    <div
+      className={`media-lightbox${media ? ' is-open' : ''}`}
+      aria-hidden={!media}
+    >
+      <button
+        type="button"
+        className="media-lightbox__backdrop"
+        aria-label="확대 이미지 닫기"
+        tabIndex={media ? 0 : -1}
+        onClick={onClose}
+      />
+      <dialog
+        className="media-lightbox__panel"
+        open={Boolean(media)}
+        aria-modal="true"
+        aria-labelledby="media-lightbox-title"
+      >
+        <header className="media-lightbox__header">
+          <span id="media-lightbox-title">작동 화면 확대</span>
+          <button type="button" onClick={onClose} autoFocus>
+            닫기 <span aria-hidden="true">×</span>
+          </button>
+        </header>
+        {media ? (
+          <>
+            <div className="media-lightbox__canvas">
+              <Image
+                src={media.src}
+                alt={media.alt}
+                fill
+                sizes="100vw"
+                style={{ objectFit: 'contain' }}
+              />
+            </div>
+            <p className="media-lightbox__caption">{media.caption}</p>
+          </>
+        ) : null}
       </dialog>
     </div>
   );
