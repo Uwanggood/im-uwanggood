@@ -766,6 +766,259 @@ const codeProofs: CodeProof[] = [
 
 const projects: Project[] = [
   {
+    id: 'venus',
+    period: '2026—Current',
+    timelineYear: '2026',
+    status: 'In operation',
+    category: 'MLOps Platform',
+    title: 'AIMOS Venus 학습 운영 플랫폼',
+    company: 'AIMOS',
+    role: 'Solo architecture / Frontend / Backend / Agent',
+    perspective: 'Make every experiment reproducible',
+    archiveNote:
+      '모델 구조를 보여주는 화면보다 데이터셋·코드·실행 환경·결과를 같은 이력으로 묶는 데 집중했습니다.',
+    summary:
+      '흩어진 데이터셋과 학습 실행, metric·log·artifact를 재현 가능한 하나의 실행 이력으로 연결했습니다.',
+    lead: '로컬 폴더와 서버마다 흩어지던 학습 기록을 팀이 다시 실행하고 비교할 수 있는 내부 MLOps 플랫폼으로 만들었습니다.',
+    startingPoint:
+      '번호판 OCR을 반복 개선할수록 어떤 데이터셋과 코드, 설정으로 weight가 만들어졌는지 추적하는 일이 모델 자체보다 더 큰 병목이 됐습니다.',
+    build:
+      'Flutter Frontend, Go Backend와 local Agent를 단독 설계·구현했습니다. 데이터셋을 내용 기반 version으로 Object Storage에 보존하고 Git revision, model input, metric, log, GPU resource와 artifact를 training run에 고정했습니다.',
+    outcome: '4종 실제 모델의 데이터셋·학습·실험 이력을 팀 단위로 통합',
+    stack: ['Flutter', 'Go', 'RabbitMQ', 'Object Storage', 'MLOps'],
+    tags: [
+      'ai',
+      'platform',
+      'mlops',
+      'flutter',
+      'go',
+      'rabbitmq',
+      'object-storage',
+    ],
+    matchProofs: [
+      {
+        signals: ['mlops', 'ai', 'platform'],
+        text: 'Git revision, dataset version와 model input을 하나의 training run에 고정해 실험을 다시 추적할 수 있게 했습니다.',
+      },
+      {
+        signals: ['flutter'],
+        text: 'Flutter에서 experiment, metric, log, resource와 artifact를 하나의 학습 이력으로 탐색하게 구성했습니다.',
+      },
+      {
+        signals: ['go', 'rabbitmq', 'backend'],
+        text: 'Go Backend와 RabbitMQ가 원격 Runner의 학습 명령, 상태와 결과 수집을 연결합니다.',
+      },
+      {
+        signals: ['object-storage', 'object storage'],
+        text: '데이터셋과 artifact를 내용 기반 version으로 Object Storage에 보존해 중복과 출처 불명을 줄였습니다.',
+      },
+    ],
+    flow: [
+      'Dataset scan',
+      'Version upload',
+      'Remote run',
+      'Live metrics',
+      'Artifact',
+    ],
+    colors: ['#9fe6d7', '#7b9cff', '#e6ff85'],
+  },
+  {
+    id: 'esther',
+    period: 'Aug 2026—Current',
+    timelineYear: '2026',
+    status: 'In operation',
+    category: 'Independent Product',
+    title: 'Esther 데이터베이스 설계 도구',
+    company: 'Independent',
+    role: 'Product design / Engineering',
+    perspective: 'Schema changes need memory and proof',
+    archiveNote:
+      'ERD를 그리는 데서 끝내지 않고 용어, 실제 DB 상태, 변경 계획과 배포 이력을 같은 프로젝트 기록으로 묶었습니다.',
+    summary:
+      '용어사전과 ERD, 실제 PostgreSQL 비교, 안전한 DDL 적용과 버전 이력을 연결한 local-first 데스크톱 앱입니다.',
+    lead: '들쭉날쭉한 컬럼명과 사라지는 SQL 작업 기록을, 검토하고 재사용할 수 있는 데이터베이스 변경 이력으로 바꿨습니다.',
+    startingPoint:
+      '같은 개념의 컬럼명과 타입이 개발자마다 달랐고, DataGrip console이 사라지면 어떤 DDL을 실행했는지 다시 확인하기 어려웠습니다.',
+    build:
+      'Flutter로 용어사전·ERD·SQL console을 통합했습니다. 실제 PostgreSQL schema를 읽어 설계와 diff하고, advisory lock 뒤 상태를 다시 확인한 다음 versioned migration을 적용·보관하도록 구성했습니다.',
+    outcome:
+      '용어 정의 → 설계 → 비교 → DDL 적용 → 운영 배포 이력을 한곳에 통합',
+    stack: ['Flutter', 'Dart', 'PostgreSQL', 'Schema Diff', 'Migration'],
+    tags: [
+      'database',
+      'postgresql',
+      'flutter',
+      'dart',
+      'migration',
+      'data-integrity',
+    ],
+    matchProofs: [
+      {
+        signals: ['database', 'postgresql'],
+        text: '설계 snapshot과 실제 PostgreSQL catalog를 비교해 변경 계획을 생성합니다.',
+      },
+      {
+        signals: ['migration', 'data-integrity'],
+        text: 'advisory lock 획득 뒤 live schema를 다시 확인하고 변경된 경우 적용을 중단합니다.',
+      },
+      {
+        signals: ['flutter', 'dart'],
+        text: '용어사전, ERD, SQL console과 migration history를 Flutter desktop 작업 흐름으로 통합했습니다.',
+      },
+    ],
+    flow: [
+      'Glossary',
+      'ERD',
+      'Live schema diff',
+      'Safe apply',
+      'Version archive',
+    ],
+    colors: ['#ffcf7b', '#ff8b9a', '#8e9cff'],
+  },
+  {
+    id: 'bucket-studio',
+    period: 'Jun 2026—Current',
+    timelineYear: '2026',
+    status: 'In operation',
+    category: 'Independent Product',
+    title: 'Bucket Studio',
+    company: 'Independent',
+    role: 'Product design / Engineering / Distribution',
+    perspective: 'Object storage should feel like a file system',
+    archiveNote:
+      'provider별 웹 콘솔을 오가는 대신 여러 S3-compatible storage를 같은 데스크톱 작업 방식으로 다루게 했습니다.',
+    summary:
+      'AWS S3부터 NCP Archive까지 탐색·검색·미리보기·전송하는 cross-platform object storage browser입니다.',
+    lead: '운영체제와 provider에 따라 달라지는 object storage 작업을 하나의 빠르고 안전한 file explorer로 만들었습니다.',
+    startingPoint:
+      '웹 console을 오가는 과정이 불편했고, Windows의 기존 S3 도구는 전송 제한이 있었으며 macOS·Linux까지 같은 경험을 제공하는 선택지가 부족했습니다.',
+    build:
+      'Flutter에서 AWS Signature V4를 직접 구현하고 multipart upload, recursive download·delete preview, presigned URL, media preview와 ETag 기반 text conflict detection을 연결했습니다. NCP Archive의 ListObjectsV1 차이도 별도 처리했습니다.',
+    outcome: 'S3-compatible 6종 provider 지원 · Microsoft Store 배포',
+    stack: ['Flutter', 'AWS SigV4', 'S3', 'NCP Archive', 'Multipart Upload'],
+    tags: [
+      'flutter',
+      'dart',
+      'aws',
+      'ncp',
+      'object-storage',
+      'platform',
+      'desktop',
+    ],
+    matchProofs: [
+      {
+        signals: ['aws', 's3', 'object-storage', 'object storage'],
+        text: '별도 중계 서버 없이 AWS Signature V4와 presigned URL을 client에서 직접 생성합니다.',
+      },
+      {
+        signals: ['ncp', 'ncp archive'],
+        text: 'NCP Archive의 ListObjectsV1과 folder marker 차이를 흡수해 같은 탐색 경험을 제공합니다.',
+      },
+      {
+        signals: ['flutter', 'dart', 'desktop'],
+        text: 'Windows·macOS·Linux에서 bucket 탐색, 부분 검색과 preview를 같은 Flutter UI로 제공합니다.',
+      },
+      {
+        signals: ['platform', 'multipart upload'],
+        text: '대용량 multipart upload, retry·abort와 partial download를 실제 transfer lifecycle로 구현했습니다.',
+      },
+    ],
+    flow: [
+      'Provider',
+      'Bucket search',
+      'Preview',
+      'Transfer queue',
+      'Safe mutation',
+    ],
+    colors: ['#77d9c7', '#6aa8ff', '#dcff83'],
+  },
+  {
+    id: 'copylight',
+    period: 'Jul 2026—Current',
+    timelineYear: '2026',
+    status: 'In operation',
+    category: 'Independent Product',
+    title: 'Copylight',
+    company: 'Independent',
+    role: 'Product design / Engineering / Distribution',
+    perspective: 'Clipboard history should remain usable',
+    archiveNote:
+      '복사 기록을 쌓기만 하지 않고 수정·검색·pin·JSON 변환과 원래 앱으로의 paste까지 하나의 짧은 흐름으로 만들었습니다.',
+    summary:
+      '텍스트와 이미지를 검색·수정·정리하고 원래 작업 앱으로 다시 붙여넣는 local-first clipboard manager입니다.',
+    lead: '자주 쓰는 clip을 찾고 고치고 변환하는 일을 clipboard panel 안에서 끝내도록 만들었습니다.',
+    startingPoint:
+      '기본 clipboard에는 과거 기록 검색, 내용 수정, pin과 JSON formatting이 없어 개발 중 반복 작업이 끊겼습니다.',
+    build:
+      'Flutter UI에 Windows C++와 macOS Swift native clipboard·window 기능을 연결했습니다. AES-GCM 암호화 저장, 대형 payload 분리, backup 복구, retry와 종료 전 flush도 구현했습니다.',
+    outcome: '56개 interaction·storage test · Microsoft Store 배포',
+    stack: ['Flutter', 'C++', 'Swift', 'AES-GCM', 'Native Clipboard'],
+    tags: [
+      'flutter',
+      'dart',
+      'desktop',
+      'security',
+      'cpp',
+      'swift',
+      'local-first',
+    ],
+    matchProofs: [
+      {
+        signals: ['flutter', 'dart'],
+        text: '검색·pin·group·edit·keyboard interaction을 하나의 Flutter desktop panel로 구성했습니다.',
+      },
+      {
+        signals: ['cpp', 'c++', 'swift', 'desktop'],
+        text: 'Windows C++와 macOS Swift로 image clipboard, 이전 application 복귀와 직접 paste를 구현했습니다.',
+      },
+      {
+        signals: ['security', 'aes-gcm', 'local-first'],
+        text: '민감한 clipboard 기록을 AES-GCM으로 암호화하고 외부 서버 없이 로컬에 보존합니다.',
+      },
+    ],
+    flow: ['Copy', 'Capture', 'Search / edit', 'Transform', 'Paste back'],
+    colors: ['#8f9dff', '#ef8fff', '#78e0d0'],
+  },
+  {
+    id: 'path-doctor',
+    period: '2026',
+    timelineYear: '2026',
+    status: 'Completed',
+    category: 'Independent Product',
+    title: 'Path Doctor',
+    company: 'Independent',
+    role: 'Product design / Engineering / Distribution',
+    perspective: 'Turn network symptoms into shared evidence',
+    archiveNote:
+      '명령어를 모르는 현장 담당자도 DNS·ping·route·HTTP 측정값을 개발자와 같은 화면에서 볼 수 있게 했습니다.',
+    summary:
+      '네트워크 경로와 지연 급증 구간을 시각화하고 다음 확인 행동을 설명하는 desktop 진단 도구입니다.',
+    lead: '“현장에서 느리다”는 보고를 재현 가능한 네트워크 측정값과 다음 점검 행동으로 바꿨습니다.',
+    startingPoint:
+      '현장 담당자가 traceroute와 속도 측정 결과를 전달하기 어려워 개발자도 어느 구간이 느린지 같은 정보를 보고 판단할 수 없었습니다.',
+    build:
+      'DNS lookup, ping RTT·packet loss, traceroute, reverse DNS·RDAP와 HTTP 응답을 한 번에 수집했습니다. hop graph에서 latency jump를 강조하고 download·upload speed와 반복 진단 이력도 제공했습니다.',
+    outcome: 'Windows v1.0 공개 · GitHub Pages와 itch.io 배포',
+    stack: ['Flutter', 'DNS', 'Traceroute', 'RDAP', 'HTTP Diagnostics'],
+    tags: ['flutter', 'dart', 'network', 'diagnostics', 'http', 'desktop'],
+    matchProofs: [
+      {
+        signals: ['network', 'diagnostics'],
+        text: 'DNS, ping, traceroute와 HTTP 결과를 연결해 경로별 지연과 packet loss를 한 번에 확인합니다.',
+      },
+      {
+        signals: ['http'],
+        text: 'HTTP 상태와 응답 시간, 접속 실패를 구분해 일반 사용자가 다음 점검 행동을 이해하게 했습니다.',
+      },
+      {
+        signals: ['flutter', 'dart', 'desktop'],
+        text: '명령줄 진단 결과를 Flutter 기반 route graph와 history chart로 시각화했습니다.',
+      },
+    ],
+    flow: ['Target', 'DNS / Ping', 'Route trace', 'Explain', 'History'],
+    colors: ['#65d3ff', '#7f8cff', '#f4de75'],
+  },
+  {
     id: 'mobile-ai-inspection',
     period: 'Apr—May 2026',
     timelineYear: '2026',
@@ -937,7 +1190,7 @@ const projects: Project[] = [
       '현장에서는 차량의 진입과 이탈을 사람이 확인해 검수 상태를 바꿔야 했고, 번호판의 각도와 조명 변화가 인식 정확도를 떨어뜨렸습니다.',
     build:
       '차량 추적과 LPRNet을 연결하고, 합성 데이터와 Focal Loss를 활용해 현장 조건에 맞게 문자 인식을 개선했습니다.',
-    outcome: '번호판 문자 인식 정확도 95% 이상 달성',
+    outcome: '번호판 전체 문자열 일치율 Validation 98% · 8개 하차지 자동 운영',
     stack: ['LPRNet', 'Focal Loss', 'Vehicle Tracking', 'Synthetic Data'],
     tags: ['ai', 'backend', 'computer-vision', 'tracking', 'lpr'],
     matchProofs: [
@@ -947,7 +1200,7 @@ const projects: Project[] = [
       },
       {
         signals: ['lpr', 'lprnet'],
-        text: 'LPRNet을 현장 번호판 조건에 맞춰 학습하고 차량 추적 결과와 결합했습니다.',
+        text: '현장 실데이터 4만 장과 합성 데이터 5천 장으로 LPRNet을 개선해 전체 문자열 일치율 Validation 98%를 확인했습니다.',
       },
       {
         signals: ['focal loss', 'synthetic data'],
@@ -981,12 +1234,13 @@ const projects: Project[] = [
       '서버 대수를 줄인 일이 아니라 데이터 이동과 저장, 동기 처리 경계를 다시 그려 비용 구조 자체를 바꾼 재구축입니다.',
     summary:
       '분산 DB와 동기 처리, 현장 Edge 서버를 통합 운영 구조로 다시 설계했습니다.',
-    lead: '분산되어 있던 56대의 서버를 10여 대로 줄이고, 월 인프라 비용을 약 6,000만 원에서 500만 원으로 낮췄습니다.',
+    lead: '월 차량 검수가 478대에서 7,555대로 늘어나는 동안 56대 구조를 10대로 통합하고 클라우드 비용을 5,524만 원에서 1,052만 원으로 낮췄습니다.',
     startingPoint:
       '현장마다 분리된 DB와 동기식 처리, 다수의 Edge 서버가 장애 대응과 데이터 관리 비용을 키우고 있었습니다.',
     build:
       'Object Storage, Redis, CloudFront와 통합 DB를 중심으로 처리 경계를 재설계했습니다. 원본 데이터의 수명주기에 맞춰 Archive Storage도 적용했습니다.',
-    outcome: '월 비용 약 6,000만 원 → 500만 원 · 서버 56대 → 10여 대',
+    outcome:
+      '월 검수 478대 → 7,555대 · 비용 5,524만 원 → 1,052만 원 · 서버 56대 → 10대',
     stack: [
       'FastAPI',
       'Redis',
@@ -1017,7 +1271,7 @@ const projects: Project[] = [
       },
       {
         signals: ['cost'],
-        text: '56대 분산 서버를 10여 대로 통합해 월 인프라 비용을 약 6,000만 원에서 500만 원으로 낮췄습니다.',
+        text: '월 검수량이 약 15.8배 늘어나는 동안 56대 구조를 10대로 통합하고 클라우드 비용을 약 80.9% 낮췄습니다.',
       },
     ],
     flow: [
@@ -1025,7 +1279,7 @@ const projects: Project[] = [
       'Unified API',
       'Redis',
       'Object Storage',
-      '10+ servers',
+      '10 servers',
     ],
     colors: ['#91a7ff', '#69e0c1', '#fff08a'],
   },
@@ -2019,6 +2273,38 @@ export default function Home() {
               </dl>
             </div>
           </div>
+
+          <section
+            className="profile-evidence"
+            aria-labelledby="evidence-title"
+          >
+            <header>
+              <span>03 / Evidence</span>
+              <h3 id="evidence-title">코드 밖에서도 확인된 결과.</h3>
+            </header>
+            <div>
+              <article>
+                <time>2026.06</time>
+                <strong>한국정보기술학회 하계종합학술대회</strong>
+                <p>철스크랩 분류 모델의 attention 개선 연구 · 제2저자</p>
+              </article>
+              <article>
+                <time>2024.06</time>
+                <strong>철강 스크랩 AI 검수 POC 성과 포상</strong>
+                <p>POC 설계·개발과 본사업 전환 기여 · 사내 포상</p>
+              </article>
+              <article>
+                <time>2021.10</time>
+                <strong>복지로 차세대 ERP 우수개발자상</strong>
+                <p>공통 기능·응답 성능·개발 자동화 기여 · 프로젝트 내부 수상</p>
+              </article>
+              <article>
+                <time>2026</time>
+                <strong>직접 만든 데스크톱 제품 배포</strong>
+                <p>Copylight와 Bucket Studio · Microsoft Store 공개</p>
+              </article>
+            </div>
+          </section>
 
           <footer className="profile-contact">
             <div>

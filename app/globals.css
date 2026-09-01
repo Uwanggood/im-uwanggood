@@ -1971,6 +1971,69 @@ button {
   color: var(--ink-2);
 }
 
+.profile-evidence {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--grid-gap);
+  padding-bottom: clamp(72px, 9vw, 120px);
+}
+
+.profile-evidence > header {
+  grid-column: 1 / 4;
+}
+
+.profile-evidence > header span,
+.profile-evidence time {
+  color: var(--ink-3);
+  font-size: 0.67rem;
+  font-weight: 650;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.profile-evidence h3 {
+  margin: 10px 0 0;
+  font-size: clamp(1.35rem, 2vw, 2rem);
+  line-height: 1.25;
+  letter-spacing: -0.04em;
+}
+
+.profile-evidence > div {
+  grid-column: 4 / 13;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid var(--line-strong);
+}
+
+.profile-evidence article {
+  min-height: 150px;
+  padding: 18px 20px 22px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.profile-evidence article:nth-child(odd) {
+  border-right: 1px solid var(--line);
+}
+
+.profile-evidence article:nth-child(even) {
+  padding-left: 20px;
+}
+
+.profile-evidence article strong {
+  display: block;
+  margin-top: 24px;
+  font-size: 0.92rem;
+  letter-spacing: -0.025em;
+}
+
+.profile-evidence article p {
+  margin: 7px 0 0;
+  color: var(--ink-2);
+  font-size: 0.76rem;
+  line-height: 1.65;
+  word-break: keep-all;
+}
+
 .profile-contact {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -2517,6 +2580,31 @@ button {
   .profile-statement h2,
   .profile-summary {
     grid-column: 1 / 7;
+  }
+
+  .profile-evidence {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .profile-evidence > header,
+  .profile-evidence > div {
+    grid-column: 1 / 7;
+  }
+
+  .profile-evidence > div {
+    grid-template-columns: minmax(0, 1fr);
+    margin-top: 28px;
+  }
+
+  .profile-evidence article,
+  .profile-evidence article:nth-child(even) {
+    min-height: 0;
+    padding: 16px 0 18px;
+    border-right: 0;
+  }
+
+  .profile-evidence article strong {
+    margin-top: 12px;
   }
 
   .profile-statement h2 {

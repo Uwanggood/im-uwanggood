@@ -240,7 +240,11 @@ export function ResumePdfDocument({
   projects,
   primaryColor,
 }: ResumePdfInput) {
-  const selectedProjects = projects.slice(0, company || signals.length ? 6 : 10);
+  const selectedProjects = (
+    company || signals.length
+      ? projects
+      : projects.filter((project) => project.company !== 'Independent')
+  ).slice(0, company || signals.length ? 6 : 10);
   const skills = [
     ...new Set(selectedProjects.flatMap((project) => project.stack)),
   ].slice(0, 18);
@@ -249,12 +253,17 @@ export function ResumePdfDocument({
     <Document
       title="송재상 — Backend · Platform · AI Engineer"
       author="송재상"
-      subject={company ? `${company} 관련 경력` : 'Backend · Platform · AI 경력'}
+      subject={
+        company ? `${company} 관련 경력` : 'Backend · Platform · AI 경력'
+      }
       keywords={[company, ...signals, ...skills].filter(Boolean).join(', ')}
       language="ko-KR"
     >
       <Page size="A4" style={styles.page} wrap>
-        <View style={[styles.accent, { backgroundColor: primaryColor }]} fixed />
+        <View
+          style={[styles.accent, { backgroundColor: primaryColor }]}
+          fixed
+        />
 
         <View style={styles.header}>
           <View style={styles.identity}>
@@ -262,10 +271,7 @@ export function ResumePdfDocument({
             <Text style={styles.title}>Backend · Platform · AI Engineer</Text>
           </View>
           <View style={styles.contact}>
-            <Link
-              src="mailto:thdwotkd123@gmail.com"
-              style={styles.contactLink}
-            >
+            <Link src="mailto:thdwotkd123@gmail.com" style={styles.contactLink}>
               thdwotkd123@gmail.com
             </Link>
             <Link src="tel:+821024082131" style={styles.contactLink}>
@@ -360,7 +366,10 @@ export function ResumePdfDocument({
 }
 
 const safeFilenamePart = (value: string) =>
-  value.trim().replace(/[\\/:*?"<>|]/g, '-').replace(/\s+/g, '_');
+  value
+    .trim()
+    .replace(/[\\/:*?"<>|]/g, '-')
+    .replace(/\s+/g, '_');
 
 export async function downloadResumePdf(input: ResumePdfInput) {
   if (!fontsRegistered) {
