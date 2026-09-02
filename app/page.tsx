@@ -17,6 +17,7 @@ type MatchProof = {
 
 type ProjectMedia = {
   src: string;
+  frames?: string[];
   alt: string;
   caption: string;
 };
@@ -832,6 +833,20 @@ const projects: Project[] = [
       'Artifact',
     ],
     colors: ['#9fe6d7', '#7b9cff', '#e6ff85'],
+    media: [
+      {
+        src: '/project-media/venus-training-map.png',
+        alt: 'AIMOS Venus에서 데이터셋부터 학습 실행 기록까지 연결한 학습 맵 화면',
+        caption:
+          '데이터셋, Git 저장소, 학습 설정과 실행 기록의 관계를 한 화면에서 추적하는 학습 맵.',
+      },
+      {
+        src: '/project-media/venus-training-result.png',
+        alt: 'AIMOS Venus 학습 실행의 손실률과 정확도 지표를 비교하는 결과 화면',
+        caption:
+          '실행별 loss, accuracy, learning rate와 재시작 구간을 함께 확인하는 학습 결과 화면.',
+      },
+    ],
   },
   {
     id: 'esther',
@@ -1317,6 +1332,19 @@ const projects: Project[] = [
     ],
     colors: ['#ffb56b', '#ff718f', '#cda8ff'],
     media: [
+      {
+        src: '/project-media/vehicle-tracking-sequence-01.jpg',
+        frames: [
+          '/project-media/vehicle-tracking-sequence-01.jpg',
+          '/project-media/vehicle-tracking-sequence-02.jpg',
+          '/project-media/vehicle-tracking-sequence-03.jpg',
+          '/project-media/vehicle-tracking-sequence-04.jpg',
+          '/project-media/vehicle-tracking-sequence-05.jpg',
+        ],
+        alt: 'PTZ 카메라가 철스크랩 운반 차량을 화면 중앙으로 추적하는 연속 장면',
+        caption:
+          '원거리 차량을 발견한 뒤 중심을 다시 잡고 줌인하는 약 11초의 PTZ 추적 과정.',
+      },
       {
         src: '/project-media/vehicle-grapple-detection.png',
         alt: '고철 하차 현장에서 차량과 그라플을 함께 검출하고 추적하는 화면',
@@ -1891,8 +1919,7 @@ export default function Home() {
     'projects',
   );
   const [showBackToTop, setShowBackToTop] = useState(false);
-  const overlayOpen =
-    drawerOpen || codeDrawerOpen || lightboxMedia !== null;
+  const overlayOpen = drawerOpen || codeDrawerOpen || lightboxMedia !== null;
   const showAll = viewOverride ?? (urlState.showAll || !hasFocus);
   const themeStyle = {
     '--brand': urlState.primaryColor,
@@ -2765,6 +2792,88 @@ function ProjectCard({
   );
 }
 
+function useMediaSequence(media: ProjectMedia, paused = false) {
+  const frames = media.frames?.length ? media.frames : [media.src];
+  const frameCount = frames.length;
+  const [frameIndex, setFrameIndex] = useState(0);
+
+  useEffect(() => {
+    if (
+      frameCount <= 1 ||
+      paused ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      return;
+    }
+
+    const timer = window.setInterval(() => {
+      setFrameIndex((current) => (current + 1) % frameCount);
+    }, 1100);
+
+    return () => window.clearInterval(timer);
+  }, [frameCount, paused]);
+
+  return {
+    frameCount,
+    frameIndex,
+    frameSrc: frames[frameIndex % frameCount] ?? media.src,
+  };
+}
+
+function ProjectMediaFigure({
+  media,
+  mediaIndex,
+  onMediaOpen,
+}: {
+  media: ProjectMedia;
+  mediaIndex: number;
+  onMediaOpen: (media: ProjectMedia) => void;
+}) {
+  const [paused, setPaused] = useState(false);
+  const { frameCount, frameIndex, frameSrc } = useMediaSequence(media, paused);
+  const isSequence = frameCount > 1;
+
+  return (
+    <figure>
+      <button
+        type="button"
+        className="project-drawer__media-frame"
+        aria-label={`${isSequence ? '연속 장면' : '이미지'} 확대: ${media.caption}`}
+        aria-haspopup="dialog"
+        onPointerEnter={() => setPaused(true)}
+        onPointerLeave={() => setPaused(false)}
+        onFocus={() => setPaused(true)}
+        onBlur={() => setPaused(false)}
+        onClick={() => onMediaOpen({ ...media, src: frameSrc })}
+      >
+        <Image
+          key={frameSrc}
+          className={isSequence ? 'project-media__sequence-frame' : undefined}
+          src={frameSrc}
+          alt={media.alt}
+          width={1920}
+          height={1080}
+          sizes="(max-width: 760px) 100vw, 760px"
+        />
+        {isSequence ? (
+          <div className="project-drawer__sequence-status" aria-hidden="true">
+            <i /> 자동 재생
+            <strong>
+              {String(frameIndex + 1).padStart(2, '0')} /{' '}
+              {String(frameCount).padStart(2, '0')}
+            </strong>
+          </div>
+        ) : null}
+        <span aria-hidden="true">확대 ↗</span>
+      </button>
+      <figcaption>
+        <span>{String(mediaIndex + 1).padStart(2, '0')}</span>
+        <p>{media.caption}</p>
+      </figcaption>
+    </figure>
+  );
+}
+
 function ProjectDrawer({
   project,
   index,
@@ -2831,28 +2940,12 @@ function ProjectDrawer({
               <h3>작동 화면</h3>
               <div className="project-drawer__media-grid">
                 {project.media.map((media, mediaIndex) => (
-                  <figure key={media.src}>
-                    <button
-                      type="button"
-                      className="project-drawer__media-frame"
-                      aria-label={`이미지 확대: ${media.caption}`}
-                      aria-haspopup="dialog"
-                      onClick={() => onMediaOpen(media)}
-                    >
-                      <Image
-                        src={media.src}
-                        alt={media.alt}
-                        width={1920}
-                        height={1080}
-                        sizes="(max-width: 760px) 100vw, 760px"
-                      />
-                      <span aria-hidden="true">확대 ↗</span>
-                    </button>
-                    <figcaption>
-                      <span>{String(mediaIndex + 1).padStart(2, '0')}</span>
-                      <p>{media.caption}</p>
-                    </figcaption>
-                  </figure>
+                  <ProjectMediaFigure
+                    key={media.src}
+                    media={media}
+                    mediaIndex={mediaIndex}
+                    onMediaOpen={onMediaOpen}
+                  />
                 ))}
               </div>
             </section>
@@ -2924,19 +3017,35 @@ function MediaLightbox({
         </header>
         {media ? (
           <>
-            <div className="media-lightbox__canvas">
-              <Image
-                src={media.src}
-                alt={media.alt}
-                fill
-                sizes="100vw"
-                style={{ objectFit: 'contain' }}
-              />
-            </div>
+            <MediaLightboxVisual key={media.src} media={media} />
             <p className="media-lightbox__caption">{media.caption}</p>
           </>
         ) : null}
       </dialog>
+    </div>
+  );
+}
+
+function MediaLightboxVisual({ media }: { media: ProjectMedia }) {
+  const { frameCount, frameIndex, frameSrc } = useMediaSequence(media);
+
+  return (
+    <div className="media-lightbox__canvas">
+      <Image
+        key={frameSrc}
+        className={frameCount > 1 ? 'project-media__sequence-frame' : undefined}
+        src={frameSrc}
+        alt={media.alt}
+        fill
+        sizes="100vw"
+        style={{ objectFit: 'contain' }}
+      />
+      {frameCount > 1 ? (
+        <div className="media-lightbox__sequence-status" aria-hidden="true">
+          자동 재생 · {String(frameIndex + 1).padStart(2, '0')} /{' '}
+          {String(frameCount).padStart(2, '0')}
+        </div>
+      ) : null}
     </div>
   );
 }
