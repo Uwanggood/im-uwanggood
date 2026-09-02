@@ -691,87 +691,69 @@ const codeProofs: CodeProof[] = [
     ],
   },
   {
-    id: 'query-outbox-claim',
+    id: 'query-sales-goal-detail',
     category: 'Query',
-    product: 'PostgreSQL · Go',
-    label: 'Concurrent outbox claim',
-    title: '여러 worker가 같은 이벤트를 집지 않고 병렬 처리합니다.',
+    product: 'ERP · PostgreSQL',
+    label: 'Weekly sales goal detail',
+    title: '실적이 없는 주차도 목표 화면에서 빠지지 않게 만들었습니다.',
     summary:
-      '실제 Go worker가 FOR UPDATE SKIP LOCKED로 배치를 선점하고 실패 횟수에 따라 다음 시도 시간을 제한된 backoff로 갱신합니다.',
-    evidence: 'SKIP LOCKED · atomic claim · capped retry backoff',
+      '월의 주차와 유효한 상위 매출 유형을 먼저 조합한 뒤 목표와 실제 매출을 LEFT JOIN했습니다. 데이터가 아직 없는 주차도 화면의 기준 행은 유지됩니다.',
     language: 'SQL / PostgreSQL',
-    file: 'claim_event_outbox.sql',
-    status: 'Source-derived · identifiers anonymized',
-    code: [
-      'WITH picked AS (',
-      '  SELECT event_id',
-      '  FROM event_outbox',
-      '  WHERE published_at IS NULL',
-      '    AND next_attempt_at <= now()',
-      '  ORDER BY event_id',
-      '  LIMIT $1',
-      '  FOR UPDATE SKIP LOCKED',
-      ')',
-      'UPDATE event_outbox AS outbox',
-      'SET',
-      '  attempts = outbox.attempts + 1,',
-      '  next_attempt_at = now() + make_interval(',
-      '    secs => LEAST(',
-      '      300,',
-      '      GREATEST(5, (outbox.attempts + 1) * 5)',
-      '    )',
-      '  )',
-      'FROM picked',
-      'WHERE outbox.event_id = picked.event_id',
-      'RETURNING outbox.event_id, outbox.event_type;',
-    ],
-  },
-  {
-    id: 'query-migration-ordering',
-    category: 'Query',
-    product: 'Dart · PostgreSQL',
-    label: 'Dependency-aware SQL plan',
-    title: '인덱스와 외래키의 의존 순서를 깨뜨리지 않고 SQL을 만듭니다.',
-    summary:
-      '실제 마이그레이션 생성기가 참조 순환을 먼저 끊고, 테이블과 unique index를 만든 뒤 FK를 지연 적용하며 rollback은 역순으로 구성합니다.',
-    evidence: 'Cycle handling · deferred constraints · reversible ordering',
-    language: 'Dart 3 / PostgreSQL',
-    file: 'postgres_migration_sql_generator.dart',
-    status: 'Source-derived · identifiers anonymized',
-    code: [
-      'final deferredIndexes = <String>[];',
-      'final deferredForeignKeys = <String>[];',
-      '',
-      'up.addAll(inboundCycles.map((cycle) =>',
-      '  dropConstraint(cycle.child, cycle.liveKey.name),',
-      '));',
-      'deferredForeignKeys.addAll(inboundCycles',
-      '  .where((cycle) => cycle.targetKey != null)',
-      '  .map((cycle) => addForeignKey(cycle.child, cycle.targetKey!)));',
-      '',
-      'for (final operation in plan.operations) {',
-      '  if (belongsToCycle(operation, inboundCycles)) continue;',
-      '',
-      '  if (operation.kind == OperationKind.createTable) {',
-      '    final table = operation.afterTable!;',
-      '    up.addAll(createTable(table, includeReferences: false));',
-      '    deferredIndexes.addAll(table.indexes.map(addIndex));',
-      '    deferredForeignKeys.addAll(table.foreignKeys.map(addForeignKey));',
-      '  } else {',
-      '    up.addAll(render(operation, plan));',
-      '  }',
-      '}',
-      '',
-      'up',
-      '  ..addAll(deferredIndexes)',
-      '  ..addAll(deferredForeignKeys.toSet());',
-      '',
-      'if (plan.operations.every((operation) => operation.reversible)) {',
-      '  for (final operation in plan.operations.reversed) {',
-      '    rollback.addAll(renderRollback(operation, plan));',
-      '  }',
-      '}',
-    ],
+    file: 'FetchSalesGoalDtl.sql',
+    status: '직접 작성 · 개인 프로젝트',
+    evidence: '주차 × 매출유형 기준 행 · 목표/실적 결합 · 유형 유효기간 반영',
+    code: String.raw`/*FetchSalesGoalDtl*/
+select :tenantId: as tenant_id
+     , stb.week_no
+     , stb.upper_sales_type_id
+     , stb.upper_sales_type_nm
+     , :goalYm: as goal_ym
+     , :teacherId: as teacher_id
+     , fsg.goal_amount
+     , fs.amount
+from (select fstb.standard_tenant_id
+           , week_no
+           , upper_sales_type_id
+           , upper_sales_type_nm
+           , sort_ordr
+           , upper_sales_type_bgn_at
+           , upper_sales_type_end_at
+      from erp.fit_sales_type_base fstb
+      cross join erp.get_weeks_in_month(:goalYm:) gwim
+      where fstb.deleted_at is null
+        and standard_tenant_id = erp.get_standard_tenant_id(:tenantId:)
+        and gwim.last_day_of_week between coalesce(fstb.upper_sales_type_bgn_at, '2000-01-01')
+                                      and coalesce(upper_sales_type_end_at, '2999-12-31')) stb
+left join erp.fit_sales_goal fsg
+       on fsg.upper_sales_type_id = stb.upper_sales_type_id
+      and stb.standard_tenant_id = erp.get_standard_tenant_id(fsg.tenant_id)
+      and fsg.goal_ym = :goalYm:
+      and fsg.week_no = stb.week_no
+      and fsg.teacher_id = :teacherId:
+      and fsg.deleted_at is null
+left join (select CEIL((EXTRACT(DAY FROM fs.sales_at) +
+                        EXTRACT(DOW FROM DATE_TRUNC('MONTH', fs.sales_at))::INT - 1) / 7.0) as week_no
+                , fs.tenant_id
+                , sum(fs.amount) as amount
+                , fstbd.upper_sales_type_id
+           from erp.fit_sales fs
+           join erp.fit_sales_type_base_dtl fstbd
+             on fs.tenant_id = fstbd.standard_tenant_id
+            and fs.sales_type_id = fstbd.sales_type_id
+          where 0 = 0
+            and fs.teacher_id = :teacherId:
+            and sales_at between TO_DATE(:goalYm:, 'YYYYMM')
+              and (DATE_TRUNC('month', to_date(:goalYm:, 'YYYYMM')) + INTERVAL '1 month')
+            and fs.deleted_at is null
+          group by CEIL((EXTRACT(DAY FROM fs.sales_at) +
+                         EXTRACT(DOW FROM DATE_TRUNC('MONTH', fs.sales_at))::INT - 1) / 7.0)
+                 , fs.tenant_id
+                 , fstbd.upper_sales_type_id
+                 , fs.sales_at) fs
+       on stb.standard_tenant_id = fs.tenant_id
+      and stb.week_no = fs.week_no
+      and stb.upper_sales_type_id = fs.upper_sales_type_id
+order by stb.sort_ordr, week_no`.split('\n'),
   },
 ];
 
