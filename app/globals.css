@@ -377,9 +377,7 @@ button {
   position: relative;
   z-index: 1;
   display: flex;
-  min-height: min(820px, calc(100svh - 72px));
   flex-direction: column;
-  justify-content: space-between;
   padding-top: 24px;
 }
 
@@ -408,12 +406,12 @@ button {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: var(--grid-gap);
-  align-items: end;
-  padding-block: clamp(72px, 11vh, 132px);
+  align-items: center;
+  padding-block: clamp(88px, 11vh, 124px) clamp(68px, 8vh, 92px);
 }
 
 .hero h1 {
-  grid-column: 1 / 11;
+  grid-column: 2 / 8;
   margin: 0;
   font-size: clamp(5.4rem, 11.7vw, 10.5rem);
   font-weight: 700;
@@ -430,8 +428,8 @@ button {
 }
 
 .hero-copy {
-  grid-column: 10 / 13;
-  margin-bottom: 0.55rem;
+  grid-column: 8 / 12;
+  max-width: 360px;
 }
 
 .hero-copy p {
@@ -462,7 +460,7 @@ button {
 }
 
 .work-index {
-  padding-block: clamp(112px, 14vw, 180px);
+  padding-block: clamp(72px, 8vw, 108px) clamp(112px, 14vw, 180px);
   scroll-margin-top: 92px;
 }
 
@@ -2498,11 +2496,11 @@ button {
   }
 
   .hero h1 {
-    grid-column: 1 / 12;
+    grid-column: 1 / 8;
   }
 
   .hero-copy {
-    grid-column: 9 / 13;
+    grid-column: 8 / 13;
   }
 
   .timeline {
@@ -2588,7 +2586,6 @@ button {
   }
 
   .hero {
-    min-height: calc(100svh - 96px);
     padding-top: 18px;
   }
 
@@ -2606,7 +2603,7 @@ button {
   }
 
   .hero-composition {
-    padding-block: 64px;
+    padding-block: 64px 56px;
   }
 
   .hero h1 {
@@ -2621,7 +2618,8 @@ button {
 
   .hero-copy {
     grid-column: 1 / 7;
-    margin-top: 48px;
+    max-width: none;
+    margin-top: 36px;
   }
 
   .hero-copy p {
@@ -2629,7 +2627,7 @@ button {
   }
 
   .work-index {
-    padding-block: 96px 120px;
+    padding-block: 72px 120px;
   }
 
   .work-index__header {
