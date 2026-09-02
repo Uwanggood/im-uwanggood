@@ -2320,12 +2320,6 @@ export default function Home() {
             </button>
           </div>
         </div>
-
-        <div className="hero-footer">
-          <strong>Song Jaesang</strong>
-          <span>Backend · Platform · Applied AI</span>
-          <span>8 years / Seoul</span>
-        </div>
       </section>
 
       <section id="projects" className="work-index page-shell">
