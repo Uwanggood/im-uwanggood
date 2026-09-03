@@ -867,9 +867,9 @@ const projects: Project[] = [
             '용어사전과 ERD, 실제 PostgreSQL 비교, 안전한 DDL 적용과 버전 이력을 연결한 local-first 데스크톱 앱입니다.',
         lead: 'DataGrip 콘솔이 사라진 뒤 예전에 실행한 DDL을 찾느라 시간을 쓴 적이 많았습니다. 제가 설계하고 배포한 DB 변경을 제 기억이 아니라 기록에 맡기려고 만든 도구입니다.',
         startingPoint:
-            'ERD만 그리는 것으로는 부족했습니다. 표준 용어와 실제 DB가 따로 놀았고, schema를 비교한 뒤 DDL을 적용하는 사이 DB가 다시 바뀔 가능성도 있었습니다.',
+            'DDL을 일일히 작성하는 것은 많아지면 파악하기가 어려웠습니다. 또 테이블 변경 이력 등의 관리가 어려웠고 테이블 컬럼 규칙을 일일히 찾아서 적용하기가 번거로웠습니다.',
         build:
-            '용어사전, ERD, live schema 비교, DDL, 변경 이력을 한 흐름으로 묶었습니다. 적용할 때는 advisory lock을 잡고 DB 상태를 다시 읽습니다. 비교 이후 달라졌다면 실행하지 않고, 실제로 적용된 migration만 버전으로 남깁니다.',
+            '용어사전, ERD, live schema 비교, DDL, 변경 이력을 버저닝으로 관리할 수 있도록 하였습니다. 한눈에 변경 사항을 확인 할 수 있고 여러 데이터베이스에 대해 동일 기준을 적용할 수 있도록 하였습니다.',
         outcome:
             '용어사전, ERD, 실제 DB 비교, DDL 실행 기록을 한 프로젝트 안에서 확인 가능',
         stack: ['Flutter', 'Dart', 'PostgreSQL', 'Schema Diff', 'Migration'],
@@ -946,9 +946,9 @@ const projects: Project[] = [
             'AWS S3부터 NCP Archive까지 탐색·검색·미리보기·전송하는 cross-platform object storage browser입니다.',
         lead: '파일 하나를 찾는 방식이 provider마다 달랐습니다. 제가 원한 것은 또 하나의 관리 서버가 아니라, 여러 스토리지를 같은 방식으로 직접 다루는 데스크톱 도구였습니다.',
         startingPoint:
-            'S3-compatible이라는 이름과 달리 provider마다 목록 조회와 folder marker 동작이 조금씩 달랐습니다. 중계 서버를 두면 개인 도구가 다시 운영해야 할 서비스가 되는 것도 피하고 싶었습니다.',
+            '운영체제마다 모두 동일하게 쓸 수 있는 S3프로그램이 없었습니다. 또 현존하는 S3 프로그램은 기능이 제한 되어 편의성이 떨어졌습니다.',
         build:
-            'Flutter 앱에서 Signature V4와 presigned URL을 직접 만들고 공통 탐색·검색·미리보기·전송 흐름을 구성했습니다. NCP Archive처럼 실제 동작이 다른 부분만 provider별로 분리했습니다. 수정 전 ETag와 삭제 대상을 확인해 데스크톱 도구의 편의가 데이터 손실로 이어지지 않게 했습니다.',
+            'Flutter 앱에서 Signature V4와 presigned URL을 직접 만들고 공통 탐색·검색·미리보기·수정 기능을 제공하여 편의성을 높였습니다. ',
         outcome: 'S3-compatible 6종 provider 지원 · Microsoft Store 배포',
         stack: ['Flutter', 'AWS SigV4', 'S3', 'NCP Archive', 'Multipart Upload'],
         tags: [
@@ -1019,7 +1019,7 @@ const projects: Project[] = [
         startingPoint:
             '기본 클립보드는 기록을 보여주는 데서 끝났습니다. 검색한 내용을 고치고, 묶어 두고, 원래 앱으로 다시 붙여넣는 흐름은 매번 다른 도구를 거쳐야 했습니다.',
         build:
-            'Flutter에는 검색·pin·그룹·편집과 JSON 변환을 넣고, Windows C++와 macOS Swift에서는 전역 단축키와 이전 앱으로 돌아가는 paste를 맡겼습니다. 민감한 기록은 AES-GCM으로 암호화했고, 저장 실패나 갑작스러운 종료 뒤에도 기록이 사라지지 않는 쪽을 기능 수보다 먼저 챙겼습니다.',
+            '검색·pin·그룹·편집과 JSON 변환과 같은 개발자 편의 기능을 넣고, 민감한 기록은 AES-GCM으로 암호화했습니다.',
         outcome: '56개 interaction·storage test · Microsoft Store 배포',
         stack: ['Flutter', 'C++', 'Swift', 'AES-GCM', 'Native Clipboard'],
         tags: [
@@ -1131,7 +1131,7 @@ const projects: Project[] = [
             '고철 사진 촬영과 AI 감정부터 매물 등록, 견적 비교, 수락과 채팅까지 하나의 거래 서비스로 만들었습니다.',
         lead: '사진을 분석하는 데서 끝나면 거래는 다시 전화와 메신저로 돌아갑니다. 판매자와 매입자가 같은 매물을 보고 견적을 주고받은 뒤 대화까지 이어갈 수 있는 고철 거래 플랫폼을 만들었습니다.',
         startingPoint:
-            '판매자에게는 고철의 종류와 중량을 판단해 매물로 만드는 과정이 필요했고, 매입자에게는 지역과 품목별 매물 탐색, 견적 제안과 거래 협의가 필요했습니다. 촬영·감정·매물·견적·채팅을 각각 끊어진 기능으로 만들면 거래 상태를 일관되게 이어가기 어려웠습니다.',
+            '판매자에게는 고철의 종류와 중량을 판단해 매물로 만드는 과정이 필요했고, 매입자에게는 지역과 품목별 매물 탐색, 견적 제안과 거래 협의가 필요했습니다.',
         build:
             'Flutter Web에서 사진 촬영과 AI 감정, 매물 등록과 탐색, 받은·보낸 견적, 수락·거절, 실시간 채팅 화면을 구현했습니다. 원본 이미지는 presigned URL로 Object Storage에 직접 올리고, Go·gRPC-Web 백엔드가 감정·매물·견적·채팅의 상태 전이를 관리하도록 구성했습니다. 견적이 수락되면 채팅방으로 이어지고 주요 상태 변화는 FCM으로 전달됩니다.',
         outcome:
@@ -1364,7 +1364,7 @@ const projects: Project[] = [
                 ],
                 alt: 'PTZ 카메라가 철스크랩 운반 차량을 화면 중앙으로 추적하는 연속 장면',
                 caption:
-                    '원거리 차량을 발견한 뒤 중심을 다시 잡고 줌인하는 약 11초의 PTZ 추적 과정.',
+                    '원거리 차량을 발견한 뒤 중심을 다시 잡고 줌인하는 PTZ 추적 과정.',
             },
             {
                 src: '/project-media/vehicle-grapple-detection.png',
@@ -1409,6 +1409,7 @@ const projects: Project[] = [
             'Grafana',
             'Object Storage',
             'Archive Storage',
+            'Airflow'
         ],
         tags: [
             'cost',
@@ -1421,6 +1422,7 @@ const projects: Project[] = [
             'grafana',
             'aws',
             'ncp',
+            'Airflow'
         ],
         matchProofs: [
             {
@@ -1438,6 +1440,10 @@ const projects: Project[] = [
             {
                 signals: ['grafana'],
                 text: 'DB에 쌓던 상태·로그를 Grafana 중심의 관측 흐름으로 옮겼습니다.',
+            },
+            {
+                signals: ['Airflow'],
+                text: '각 배치처리를 Airflow로 모았습니다. 추후 실패 Retry 및 dag의 연동 관리도 추가 하였습니다.',
             },
             {
                 signals: [
@@ -1498,11 +1504,11 @@ const projects: Project[] = [
             '데모 화면이 아니라 현장 영상과 실제 모델을 묶은 실행 가능한 제품으로 사업 가능성을 증명했습니다.',
         summary:
             'RTSP 수신부터 프레임 캡처, AI 추론과 결과 표시까지 Windows 앱으로 구현했습니다.',
-        lead: '아이디어 설명만으로는 사업성을 판단할 수 없었습니다. 세 명 팀을 이끌고 실제 CCTV 영상이 AI 결과로 돌아오는 가장 짧은 경로부터 만들었습니다.',
+        lead: '보여지기 전까지는 사업부에서 사업성을 판단할 수 없다는 의견이 나왔습니다. 각 AI 철스크랩을 쓰고 있는 회사의 영상을 참조해 실시간 영상스트리밍을 통해 검수 초기 모델을 개발 했습니다.',
         startingPoint:
             '제품 구조도 운영 방식도 정해지지 않은 단계였습니다. 현장 영상 수신, 프레임 추출, 모델 호출, 저장, 화면 표시가 실제 카메라에서 한 번에 이어지는지를 먼저 증명해야 했습니다.',
         build:
-            'Flutter Windows 앱으로 RTSP 수신부터 추론 결과 표시까지 수직으로 연결했습니다. 기능을 넓히기보다 현장에 직접 가져가 카메라와 모델이 끊기지 않고 도는지 확인하는 데 집중했습니다.',
+            'Flutter Windows 앱으로 RTSP 수신부터 추론 결과 표시까지 수직으로 연결했습니다. 현장에서 직접 RTSP 카메라를 통해 실시간 검수가 이루어지는 과정을 확인 했습니다.',
         outcome: 'POC 성공과 본사업 수주 기여 · 포상금 300만 원 수상',
         stack: ['Flutter Windows', 'RTSP', 'Frame Capture', 'AI Inference'],
         tags: ['ai', 'backend', 'flutter', 'rtsp', 'poc'],
@@ -1533,7 +1539,7 @@ const projects: Project[] = [
         timelineYear: '2023',
         status: 'Completed',
         category: 'Operations',
-        title: 'uipath RPA 통합 관리 플랫폼',
+        title: 'Uipath RPA 통합 관리 플랫폼',
         company: '지앤비아이텍',
         role: 'Project Lead · 4-person team',
         perspective: '겹치는 RPA 작업의 다음 실행 시간 계산',
@@ -1541,13 +1547,13 @@ const projects: Project[] = [
             '자원을 공유하는 자동화 작업의 충돌을 시간표로 번역해, 보이지 않던 기다림을 운영 가능한 정보로 바꿨습니다.',
         summary:
             'UiPath 실행 이력과 로봇 이벤트를 수집해 작업의 예상 시작·종료 시간을 보여줬습니다.',
-        lead: '예약 시간은 정해져 있어도 앞 작업이 늦어지면 뒤 일정은 모두 달라졌습니다. 운영자가 “다음 작업이 실제로 언제 시작하는가”를 볼 수 있게 했습니다.',
+        lead: '일관 되지 않은 작업 시간들에 대해 유효한 작업 가능 에이전트와 예상 시간을 보여줘야 했습니다.',
         startingPoint:
-            '같은 robot을 공유하는 작업의 지연은 연쇄적으로 번졌지만 UiPath에는 바뀐 시간표가 없었습니다. 단순 평균 시간보다 자원 충돌과 우선순위를 함께 계산해야 했습니다.',
+            '실행해야 할 Job이 많았지만 어떤 로봇이 언제 끝날지 모르기 때문에 작업 분배를 결정하기 어려웠고 언제 끝날지도 알 수 없었습니다.',
         build:
-            'UiPath 실행 이력과 robot event를 webhook으로 받고, 빈 robot을 먼저 배정한 뒤 충돌한 작업은 우선순위와 기존 예정 시간을 따라 연쇄 재배치했습니다. 결과는 Vue 캘린더로 보여줬고, 4인 팀에서는 일정과 역할을 조율했습니다.',
+            'UiPath 실행 이력과 robot event를 webhook으로 받고, 빈 robot을 먼저 배정한 뒤 충돌한 작업은 우선순위와 종료 예상 시간을 따라 연쇄 재배치했습니다. 결과는 Vue 풀 캘린더로 보여줬고, 4인 팀에서는 일정과 역할을 조율했습니다.',
         outcome: '예상 시작·종료 시간을 캘린더에서 확인하도록 구현',
-        stack: ['UiPath', 'Webhook', 'Java', 'JPA', 'Vue'],
+        stack: ['UiPath', 'Webhook', 'Java', 'JPA', 'Vue3'],
         tags: ['backend', 'platform', 'rpa', 'java', 'webhook', 'leadership'],
         matchProofs: [
             {
@@ -1559,7 +1565,7 @@ const projects: Project[] = [
                 text: 'Java 백엔드에서 공유 자원의 작업 충돌과 우선순위를 계산해 예상 시간표를 만들었습니다.',
             },
             {
-                signals: ['vue'],
+                signals: ['vue3'],
                 text: '계산된 시작·종료 시간을 Vue 캘린더에 배치해 운영자가 대기열을 한눈에 읽게 했습니다.',
             },
             {
@@ -1588,9 +1594,9 @@ const projects: Project[] = [
         startingPoint:
             '응시 화면을 유지한 채 카메라를 검사하고 감지 이벤트와 채팅을 감독자에게 보내야 했습니다. 로컬 모델, Electron 화면, 실시간 서버가 서로 실패해도 시험 상태는 이어져야 했습니다.',
         build:
-            '약 10만 장으로 사람·휴대폰 YOLOv5 모델을 학습하고 Vue 3·Electron 앱에서 로컬 AI 프로세스의 시작·종료·오류를 분리해 관리했습니다. Redis와 WebSocket은 감지 이벤트, 응시 상태, 채팅만 실시간으로 전달하게 했습니다.',
-        outcome: '사람·휴대폰 검출 모델 mAP 95% 달성',
-        stack: ['YOLOv5', 'Vue 3', 'Electron', 'Redis', 'WebSocket'],
+            '약 10만 장으로 사람·휴대폰 YOLOv5 모델을 학습하고 Vue 2·Electron 앱에서 로컬 AI 프로세스의 시작·종료·오류를 분리해 관리했습니다. Redis와 WebSocket은 감지 이벤트, 응시 상태, 채팅만 실시간으로 전달하게 했습니다.',
+        outcome: '사람·휴대폰 검출 모델 mAP 95% 달성, LG 전사 AI 시험 응시 시스템 구축',
+        stack: ['YOLOv5', 'Vue 2', 'Electron', 'Redis', 'WebSocket'],
         tags: ['ai', 'backend', 'platform', 'vue', 'electron', 'redis'],
         matchProofs: [
             {
@@ -1602,8 +1608,8 @@ const projects: Project[] = [
                 text: 'Electron이 시험 화면과 로컬 AI 프로세스를 함께 실행하고 종료 시 정리하도록 만들었습니다.',
             },
             {
-                signals: ['vue', 'vue 3'],
-                text: 'Vue 3로 응시 상태, 감지 이벤트와 감독자 소통을 하나의 인터페이스에 구성했습니다.',
+                signals: ['vue', 'vue 2'],
+                text: 'Vue 2로 응시 상태, 감지 이벤트와 감독자 소통을 하나의 인터페이스에 구성했습니다.',
             },
             {
                 signals: ['redis', 'websocket', 'backend', 'platform'],
@@ -1698,10 +1704,10 @@ const projects: Project[] = [
             'BankPay와 EasyPay 결제 결과를 회계 처리까지 연결하고 중복 예약을 제어했습니다.',
         lead: '결제 성공 뒤 사람이 다시 회계에 옮기던 흐름을 자동으로 연결했습니다. 동시에 들어온 요청이 같은 예약을 두 번 확정하지 않는 것도 같은 상태 문제로 봤습니다.',
         startingPoint:
-            'BankPay와 EasyPay는 응답 형식과 성공 조건이 달랐고, 결제와 회계 사이의 상태가 끊겨 있었습니다. 재시도나 동시 요청이 들어오면 중복 예약과 금액 불일치가 생길 수 있었습니다.',
+            '휴양 업무 특성상 결제 대금을 먼저 받을 경우 회계 처리를 미루는 것이 불가능 했습니다. 예약 전 취소를 할 경우 회계처리의 복잡성이 늘었습니다.',
         build:
-            '결제사별 응답을 검증한 뒤 하나의 내부 상태로 정규화하고 회계 처리까지 이어지게 했습니다. 예약·결제 상태 전이를 Java 백엔드에서 관리하고 같은 건의 동시 요청은 한 번만 반영되도록 제어했습니다.',
-        outcome: '결제·회계 자동 연계 · 동시성 제어로 데이터 정합성 유지',
+            'EasyPay의 담당자와 직접 회의를 조율 한 후 전기공사공제조합만 특별한 케이스로 처리 해줄 수 있도록 협조 요청을 하였습니다.',
+        outcome: '결제·회계의 업무 미수금 처리가 가능해져 업무 효율성이 증가 하였습니다.',
         stack: ['Java', 'BankPay', 'EasyPay', 'Accounting', 'Concurrency Control'],
         tags: [
             'payments',
@@ -1949,12 +1955,7 @@ const buildPortfolioUrl = (baseUrl: string, settings: ResumePdfSettings) => {
     if (settings.signals.length > 0) {
         url.searchParams.set('tech', settings.signals.join(','));
     }
-    if (settings.projectIds.length > 0) {
-        url.searchParams.set('projects', settings.projectIds.join(','));
-    }
-    if (settings.scope !== 'all') {
-        url.searchParams.set('scope', settings.scope);
-    }
+    url.searchParams.set('view', 'all');
     url.searchParams.set('primary', settings.primaryColor);
     url.searchParams.set('secondary', settings.secondaryColor);
     url.searchParams.set('accent', settings.accentColor);
@@ -1986,6 +1987,7 @@ export default function Home() {
         projectId: string;
         timeoutId: number;
     } | null>(null);
+    const hiddenResumeDoubleClickCount = useRef(0);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [codeDrawerOpen, setCodeDrawerOpen] = useState(false);
     const [lightboxMedia, setLightboxMedia] = useState<ProjectMedia | null>(null);
@@ -2374,6 +2376,13 @@ export default function Home() {
         setPdfSettingsOpen(true);
     };
 
+    const revealResumeFromCapability = () => {
+        hiddenResumeDoubleClickCount.current += 1;
+        if (hiddenResumeDoubleClickCount.current < 2) return;
+        hiddenResumeDoubleClickCount.current = 0;
+        openResumeSettings();
+    };
+
     const downloadResume = async (settings: ResumePdfSettings) => {
         if (isDownloadingPdf) return;
         setIsDownloadingPdf(true);
@@ -2477,12 +2486,6 @@ export default function Home() {
 
                 <div className="masthead-actions">
                     <span>Seoul · KR</span>
-                    <button
-                        type="button"
-                        onClick={openResumeSettings}
-                    >
-                        Resume PDF ↓
-                    </button>
                 </div>
             </header>
 
@@ -2530,7 +2533,17 @@ export default function Home() {
 
                 <section className="stack-filter" aria-label="스택과 태그 검색">
                     <div className="stack-filter__intro">
-                        <span>Find by capability</span>
+                        <span>
+                            Find by capabilit
+                            <button
+                                type="button"
+                                className="stack-filter__secret"
+                                tabIndex={-1}
+                                onDoubleClick={revealResumeFromCapability}
+                            >
+                                y
+                            </button>
+                        </span>
                         <p>
                             찾으시는 기술을 검색하면 연관 된 내용까지 나오게 됩니다.
                         </p>
@@ -2814,10 +2827,12 @@ export default function Home() {
                         </div>
                         <div className="profile-summary">
                             <p>
-                                기능을 많이 만드는 것보다 일이 실제로 어떻게 흘러가는지 먼저
-                                봅니다. 현장의 반복 작업, 서버 사이의 불필요한 이동, 다시 찾을 수
-                                없는 실행 기록을 줄이는 방식으로 백엔드와 AI 제품을 만들어
-                                왔습니다.
+                                간결하게 덜어내는 방법으로 코드를 우아하게 표현하는 방법을 추구 합니다.
+                                {company.trim() && (
+                                    <>
+                                        {' '}{company.trim()}와의 일에서도 그러한 마음으로 함께 코드를 담아내고 싶습니다.
+                                    </>
+                                )}
                             </p>
                             <dl>
                                 <div>
@@ -2843,9 +2858,7 @@ export default function Home() {
                         <header>
                             <span>03 / Decisions</span>
                             <h3 id="decisions-title">
-                                제가 해결한 건
-                                <br/>
-                                기능 하나가 아니라 흐름이었습니다.
+                                막힌 흐름을 원활하게
                             </h3>
                             <p>
                                 문제를 발견한 장면과 구조를 바꾼 이유가 결과보다 먼저 보이도록
@@ -2901,7 +2914,7 @@ export default function Home() {
                     >
                         <header>
                             <span>04 / Evidence</span>
-                            <h3 id="evidence-title">코드 밖에서도 확인된 결과.</h3>
+                            <h3 id="evidence-title">코드 밖에서도</h3>
                         </header>
                         <div>
                             <article>
@@ -2934,12 +2947,6 @@ export default function Home() {
                         </div>
                         <a href="mailto:thdwotkd123@gmail.com">thdwotkd123@gmail.com ↗</a>
                         <a href="tel:+821024082131">+82 10-2408-2131</a>
-                        <button
-                            type="button"
-                            onClick={openResumeSettings}
-                        >
-                            Resume PDF ↓
-                        </button>
                     </footer>
                 </div>
             </section>
@@ -3329,6 +3336,11 @@ function PdfSettingsDialog({
 }) {
     const [techQuery, setTechQuery] = useState('');
     const [linkCopied, setLinkCopied] = useState(false);
+    const [presetText, setPresetText] = useState('');
+    const [presetStatus, setPresetStatus] = useState<{
+        type: 'success' | 'error';
+        text: string;
+    } | null>(null);
     const normalizedQuery = techQuery.trim().toLowerCase();
     const visibleTags = availableTags.filter((tag) =>
         `${tag} ${tagLabel(tag)}`.toLowerCase().includes(normalizedQuery),
@@ -3395,6 +3407,176 @@ function PdfSettingsDialog({
         window.setTimeout(() => setLinkCopied(false), 1600);
     };
 
+    const applyAiPreset = () => {
+        try {
+            const firstBrace = presetText.indexOf('{');
+            const lastBrace = presetText.lastIndexOf('}');
+            if (firstBrace < 0 || lastBrace <= firstBrace) {
+                throw new Error('JSON 형식의 설정을 찾지 못했습니다.');
+            }
+
+            const parsed: unknown = JSON.parse(
+                presetText.slice(firstBrace, lastBrace + 1),
+            );
+            if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+                throw new Error('설정은 JSON 객체여야 합니다.');
+            }
+
+            const preset = parsed as Record<string, unknown>;
+            const colors =
+                preset.colors &&
+                typeof preset.colors === 'object' &&
+                !Array.isArray(preset.colors)
+                    ? (preset.colors as Record<string, unknown>)
+                    : {};
+            const firstString = (...values: unknown[]) =>
+                values.find((value): value is string => typeof value === 'string');
+            const stringList = (value: unknown) => {
+                if (Array.isArray(value)) {
+                    return value.filter((item): item is string => typeof item === 'string');
+                }
+                return typeof value === 'string'
+                    ? value.split(/[,\n]/).map((item) => item.trim()).filter(Boolean)
+                    : [];
+            };
+
+            const companyName = (
+                firstString(preset.company, preset.companyName, preset['회사명']) ??
+                settings.company
+            ).trim();
+            const requestedTechnologies = stringList(
+                preset.technologies ??
+                    preset.tech ??
+                    preset.skills ??
+                    preset.signals ??
+                    preset['기술'],
+            );
+            const signals = [
+                ...new Set(
+                    requestedTechnologies
+                        .map((technology) => {
+                            const normalized = normalizeTagKey(technology);
+                            return availableTags.find(
+                                (tag) =>
+                                    normalizeTagKey(tag) === normalized ||
+                                    normalizeTagKey(tagLabel(tag)) === normalized,
+                            );
+                        })
+                        .filter((tag): tag is string => Boolean(tag)),
+                ),
+            ];
+
+            const requestedScope = (
+                firstString(preset.scope, preset['범위']) ?? settings.scope
+            ).toLowerCase();
+            const scope: ProjectScope =
+                requestedScope === 'work' || requestedScope === '업무'
+                    ? 'work'
+                    : requestedScope === 'personal' || requestedScope === '개인'
+                      ? 'personal'
+                      : requestedScope === 'all' || requestedScope === '전체'
+                        ? 'all'
+                        : settings.scope;
+            const projectsInScope = projects.filter((project) => {
+                if (scope === 'work') return project.company !== 'Independent';
+                if (scope === 'personal') return project.company === 'Independent';
+                return true;
+            });
+            const requestedProjects = stringList(
+                preset.projects ?? preset.projectIds ?? preset['프로젝트'],
+            );
+            const explicitProjectIds = [
+                ...new Set(
+                    requestedProjects
+                        .map((requestedProject) => {
+                            const lookup = requestedProject.toLowerCase().replaceAll(' ', '');
+                            return projectsInScope.find((project) => {
+                                const title = project.title.toLowerCase().replaceAll(' ', '');
+                                return (
+                                    project.id.toLowerCase() === lookup ||
+                                    title === lookup ||
+                                    title.includes(lookup) ||
+                                    lookup.includes(title)
+                                );
+                            })?.id;
+                        })
+                        .filter((id): id is string => Boolean(id)),
+                ),
+            ];
+            const recommendationTargets = expandedSignals(signals, companyName);
+            const recommendedProjectIds = projectsInScope
+                .map((project, index) => ({
+                    id: project.id,
+                    index,
+                    score: [...recommendationTargets].reduce(
+                        (total, target) =>
+                            total + (projectMatchesTarget(project, target) ? 1 : 0),
+                        0,
+                    ),
+                }))
+                .sort((a, b) => b.score - a.score || a.index - b.index)
+                .slice(0, 4)
+                .map((project) => project.id);
+            const theme = companyThemes[companyName.toLowerCase()];
+            const primaryColor =
+                normalizeHexColor(
+                    firstString(
+                        colors.primary,
+                        preset.primaryColor,
+                        preset.primary,
+                    ) ?? null,
+                ) ??
+                theme?.primary ??
+                settings.primaryColor;
+            const secondaryColor =
+                normalizeHexColor(
+                    firstString(
+                        colors.secondary,
+                        preset.secondaryColor,
+                        preset.secondary,
+                    ) ?? null,
+                ) ??
+                theme?.secondary ??
+                settings.secondaryColor;
+            const accentColor =
+                normalizeHexColor(
+                    firstString(colors.accent, preset.accentColor, preset.accent) ??
+                        null,
+                ) ??
+                theme?.accent ??
+                settings.accentColor;
+
+            onChange({
+                company: companyName,
+                signals,
+                projectIds:
+                    explicitProjectIds.length > 0
+                        ? explicitProjectIds
+                        : recommendedProjectIds,
+                scope,
+                primaryColor,
+                secondaryColor,
+                accentColor,
+                includeImages:
+                    typeof preset.includeImages === 'boolean'
+                        ? preset.includeImages
+                        : settings.includeImages,
+            });
+            setPresetStatus({
+                type: 'success',
+                text: `${companyName || '회사 미지정'} · 기술 ${signals.length}개 · 프로젝트 ${explicitProjectIds.length || recommendedProjectIds.length}개를 적용했습니다.`,
+            });
+        } catch (error) {
+            setPresetStatus({
+                type: 'error',
+                text:
+                    error instanceof Error
+                        ? error.message
+                        : 'AI 설정을 적용하지 못했습니다.',
+            });
+        }
+    };
+
     return (
         <div
             className={`pdf-settings${open ? ' is-open' : ''}`}
@@ -3430,6 +3612,39 @@ function PdfSettingsDialog({
                         onDownload();
                     }}
                 >
+                    <section className="pdf-settings__section pdf-settings__preset">
+                        <label className="pdf-settings__label" htmlFor="pdf-ai-preset">
+                            <span>AI 설정 한 번에 적용</span>
+                            <small>
+                                채용공고를 분석한 AI가 만든 JSON을 붙여넣으면 회사명, 기술,
+                                프로젝트와 색상을 한꺼번에 채웁니다.
+                            </small>
+                        </label>
+                        <div className="pdf-settings__preset-controls">
+                            <textarea
+                                id="pdf-ai-preset"
+                                value={presetText}
+                                placeholder={'{"company":"토스","technologies":["Java","Redis"],"scope":"work","colors":{"primary":"#0064ff","secondary":"#3182f6","accent":"#e8f3ff"}}'}
+                                onChange={(event) => {
+                                    setPresetText(event.target.value);
+                                    setPresetStatus(null);
+                                }}
+                            />
+                            <button
+                                type="button"
+                                disabled={!presetText.trim()}
+                                onClick={applyAiPreset}
+                            >
+                                설정 적용
+                            </button>
+                            {presetStatus ? (
+                                <p className={`is-${presetStatus.type}`} role="status">
+                                    {presetStatus.text}
+                                </p>
+                            ) : null}
+                        </div>
+                    </section>
+
                     <section className="pdf-settings__section">
                         <label className="pdf-settings__label" htmlFor="pdf-company">
                             <span>지원 회사명</span>

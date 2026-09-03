@@ -28,10 +28,10 @@ let fontsRegistered = false;
 
 const styles = StyleSheet.create({
   page: {
-    paddingTop: 42,
-    paddingRight: 46,
-    paddingBottom: 48,
-    paddingLeft: 46,
+    paddingTop: 34,
+    paddingRight: 42,
+    paddingBottom: 40,
+    paddingLeft: 42,
     backgroundColor: '#ffffff',
     color: '#171717',
     fontFamily: 'Nanum Gothic',
@@ -39,14 +39,14 @@ const styles = StyleSheet.create({
     lineHeight: 1.55,
   },
   accent: {
-    height: 5,
-    marginBottom: 24,
+    height: 4,
+    marginBottom: 18,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    paddingBottom: 20,
+    paddingBottom: 15,
     borderBottomWidth: 0.8,
     borderBottomColor: '#1c1c1c',
   },
@@ -56,8 +56,8 @@ const styles = StyleSheet.create({
     gap: 13,
   },
   portrait: {
-    width: 60,
-    height: 80,
+    width: 54,
+    height: 72,
     objectFit: 'cover',
   },
   identity: {
@@ -94,8 +94,8 @@ const styles = StyleSheet.create({
   intro: {
     flexDirection: 'row',
     gap: 24,
-    paddingTop: 19,
-    paddingBottom: 20,
+    paddingTop: 14,
+    paddingBottom: 15,
   },
   introLabel: {
     width: 92,
@@ -123,8 +123,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'baseline',
-    paddingTop: 10,
-    paddingBottom: 8,
+    paddingTop: 8,
+    paddingBottom: 6,
     borderTopWidth: 1.2,
     borderTopColor: '#1c1c1c',
   },
@@ -139,9 +139,9 @@ const styles = StyleSheet.create({
   },
   project: {
     flexDirection: 'row',
-    gap: 18,
-    paddingTop: 12,
-    paddingBottom: 13,
+    gap: 15,
+    paddingTop: 9,
+    paddingBottom: 10,
     borderTopWidth: 0.55,
     borderTopColor: '#d2d2d2',
   },
@@ -187,8 +187,8 @@ const styles = StyleSheet.create({
     lineHeight: 1.55,
   },
   projectVisual: {
-    marginTop: 8,
-    padding: 5,
+    marginTop: 6,
+    padding: 4,
     borderWidth: 0.5,
     borderColor: '#dedede',
     borderRadius: 2,
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
   },
   projectImage: {
     width: '100%',
-    height: 96,
+    height: 84,
     objectFit: 'contain',
   },
   projectImageCaption: {
@@ -206,14 +206,14 @@ const styles = StyleSheet.create({
     lineHeight: 1.4,
   },
   caseNotes: {
-    marginTop: 8,
+    marginTop: 6,
     borderTopWidth: 0.5,
     borderTopColor: '#dedede',
   },
   caseNote: {
     flexDirection: 'row',
     gap: 9,
-    paddingTop: 6,
+    paddingTop: 4,
   },
   caseLabel: {
     width: 43,
@@ -228,8 +228,8 @@ const styles = StyleSheet.create({
     lineHeight: 1.55,
   },
   technologyProofs: {
-    marginTop: 8,
-    paddingTop: 6,
+    marginTop: 6,
+    paddingTop: 4,
     borderTopWidth: 0.5,
     borderTopColor: '#dedbd4',
   },
@@ -251,8 +251,8 @@ const styles = StyleSheet.create({
     lineHeight: 1.5,
   },
   outcome: {
-    marginTop: 7,
-    paddingTop: 6,
+    marginTop: 5,
+    paddingTop: 4,
     borderTopWidth: 0.5,
     borderTopColor: '#e4e4e4',
     fontSize: 8,
@@ -409,9 +409,7 @@ export function ResumePdfDocument({
           <Text style={styles.introLabel}>PROFILE</Text>
           <View style={styles.introBody}>
             <Text style={styles.introCopy}>
-              8년 동안 백엔드와 플랫폼, AI 제품을 만들었습니다. 설계와 구현에서
-              멈추지 않고 배포 이후의 비용, 장애, 현장 운영까지 하나의 문제로
-              다룹니다.
+              안녕하십니까 송재상입니다. 코딩을 하나의 예술이라 생각하고 개발을 통해 세상을 바꾸고 싶은 개발자 입니다.
             </Text>
             {(company || signals.length > 0) && (
               <Text style={styles.focus}>
@@ -433,7 +431,7 @@ export function ResumePdfDocument({
             const media = includeImages ? mediaSource(project) : null;
             const proofs = technologyProofs(project);
             return (
-            <View key={project.id} style={styles.project} wrap={false}>
+            <View key={project.id} style={styles.project} minPresenceAhead={90}>
               <View style={styles.projectMeta}>
                 <Text style={styles.projectPeriod}>{project.period}</Text>
                 <Text style={styles.projectCompany}>{project.company}</Text>
