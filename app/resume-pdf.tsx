@@ -86,10 +86,11 @@ const styles = StyleSheet.create({
     textDecoration: 'none',
   },
   portfolioLink: {
-    marginTop: 3,
-    color: '#454545',
-    fontSize: 7.1,
-    textDecoration: 'none',
+    marginTop: 5,
+    color: '#3157d5',
+    fontSize: 8.7,
+    fontWeight: 700,
+    textDecoration: 'underline',
   },
   intro: {
     flexDirection: 'row',
@@ -209,6 +210,23 @@ const styles = StyleSheet.create({
   projectImageWide: {
     height: 84,
     objectFit: 'contain',
+  },
+  projectSequence: {
+    flexDirection: 'row',
+    gap: 4,
+  },
+  projectSequenceFrame: {
+    flex: 1,
+  },
+  projectSequenceImage: {
+    width: '100%',
+    height: 76,
+    objectFit: 'cover',
+  },
+  projectSequenceIndex: {
+    marginTop: 2,
+    color: '#777777',
+    fontSize: 5.8,
   },
   projectImageCaption: {
     marginTop: 4,
@@ -343,9 +361,6 @@ export function ResumePdfDocument({
   const skills = [
     ...new Set(selectedProjects.flatMap((project) => project.stack)),
   ].slice(0, 18);
-  const portfolioLabel = portfolioUrl
-    .replace(/^https?:\/\//, '')
-    .replace(/\?.+$/, '');
   const normalizedSignals = signals.map((signal, index) => ({
     key: normalizePdfSignal(signal),
     label: signalLabels[index] ?? signal,
@@ -365,14 +380,32 @@ export function ResumePdfDocument({
       })
       .filter((proof): proof is { labels: string[]; text: string } => Boolean(proof))
       .slice(0, 3);
-  const mediaSources = (project: Project) =>
-    project.media?.slice(0, 2).map((media) => {
-      const source = media.frames?.[0] ?? media.src;
+  const assetUrl = (source: string) =>
+    /^https?:\/\//.test(source) ? source : `${assetOrigin}${source}`;
+  const mediaSources = (project: Project) => {
+    const mediaItems = project.media ?? [];
+    const selectedMedia = mediaItems[0]?.frames?.length
+      ? mediaItems.slice(0, 1)
+      : mediaItems.slice(0, 2);
+
+    return selectedMedia.map((media) => {
+      const frames = media.frames ?? [];
+      const frameIndexes = frames.length
+        ? [
+            ...new Set([
+              0,
+              Math.floor((frames.length - 1) / 2),
+              frames.length - 1,
+            ]),
+          ]
+        : [];
       return {
         ...media,
-        source: /^https?:\/\//.test(source) ? source : `${assetOrigin}${source}`,
+        source: assetUrl(media.src),
+        frameSources: frameIndexes.map((index) => assetUrl(frames[index])),
       };
-    }) ?? [];
+    });
+  };
 
   return (
     <Document
@@ -410,7 +443,7 @@ export function ResumePdfDocument({
             </Link>
             <Text>Seoul · KR</Text>
             <Link src={portfolioUrl} style={styles.portfolioLink}>
-              {portfolioLabel} · Portfolio ↗
+              포트폴리오 전체 보기 ↗
             </Link>
           </View>
         </View>
@@ -445,6 +478,38 @@ export function ResumePdfDocument({
                 (item) => item.width && item.height && item.height > item.width,
               );
             const proofs = technologyProofs(project);
+            const mediaViews = media.map((item) => (
+              <View
+                key={item.source}
+                style={[
+                  styles.projectVisual,
+                  pairedMedia ? styles.projectVisualPaired : {},
+                ]}
+                wrap={false}
+              >
+                {item.frameSources.length > 1 ? (
+                  <View style={styles.projectSequence}>
+                    {item.frameSources.map((source, index) => (
+                      <View key={source} style={styles.projectSequenceFrame}>
+                        <Image src={source} style={styles.projectSequenceImage} />
+                        <Text style={styles.projectSequenceIndex}>
+                          {String(index + 1).padStart(2, '0')}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                ) : (
+                  <Image
+                    src={item.source}
+                    style={[
+                      styles.projectImage,
+                      item.naturalRatio ? styles.projectImageWide : {},
+                    ]}
+                  />
+                )}
+                <Text style={styles.projectImageCaption}>{item.caption}</Text>
+              </View>
+            ));
             return (
             <View key={project.id} style={styles.project}>
               <View style={styles.projectMeta}>
@@ -478,27 +543,13 @@ export function ResumePdfDocument({
                     ))}
                   </View>
                 ) : null}
-                <View style={pairedMedia ? styles.projectMediaRow : {}}>
-                  {media.map((item) => (
-                    <View
-                      key={item.source}
-                      style={[
-                        styles.projectVisual,
-                        pairedMedia ? styles.projectVisualPaired : {},
-                      ]}
-                      wrap={false}
-                    >
-                      <Image
-                        src={item.source}
-                        style={[
-                          styles.projectImage,
-                          item.naturalRatio ? styles.projectImageWide : {},
-                        ]}
-                      />
-                      <Text style={styles.projectImageCaption}>{item.caption}</Text>
-                    </View>
-                  ))}
-                </View>
+                {pairedMedia ? (
+                  <View style={styles.projectMediaRow} wrap={false}>
+                    {mediaViews}
+                  </View>
+                ) : (
+                  mediaViews
+                )}
                 <Text style={styles.outcome}>{project.outcome}</Text>
                 <Text style={styles.stack}>
                   <Text style={styles.stackLabel}>사용 기술 · </Text>
