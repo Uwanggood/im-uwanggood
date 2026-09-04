@@ -2019,6 +2019,8 @@ export default function Home() {
     );
     const [tagQuery, setTagQuery] = useState('');
     const [tagPickerOpen, setTagPickerOpen] = useState(false);
+    const tagInputRef = useRef<HTMLInputElement>(null);
+    const tagOptionRefs = useRef<Array<HTMLButtonElement | null>>([]);
     const targets = expandedSignals(activeFilters, company);
     const hasFocus = targets.size > 0;
     const [viewOverride, setViewOverride] = useState<boolean | null>(null);
@@ -2403,6 +2405,17 @@ export default function Home() {
         );
     };
 
+    const chooseTag = (tag: string) => {
+        toggleTag(tag);
+        window.requestAnimationFrame(() => tagInputRef.current?.focus());
+    };
+
+    const focusTagOption = (index: number) => {
+        if (pickerTags.length === 0) return;
+        const nextIndex = (index + pickerTags.length) % pickerTags.length;
+        tagOptionRefs.current[nextIndex]?.focus();
+    };
+
     const openProject = (projectId: string) => {
         setSelectedProjectId(projectId);
         setActiveProjectId(projectId);
@@ -2647,6 +2660,7 @@ export default function Home() {
                         >
                             <div className="stack-filter__input">
                                 <input
+                                    ref={tagInputRef}
                                     id="stack-search"
                                     type="search"
                                     role="combobox"
@@ -2662,7 +2676,29 @@ export default function Home() {
                                         setTagPickerOpen(true);
                                     }}
                                     onKeyDown={(event) => {
-                                        if (event.key === 'Escape') setTagPickerOpen(false);
+                                        if (event.key === 'Escape') {
+                                            setTagPickerOpen(false);
+                                            return;
+                                        }
+                                        if (event.nativeEvent.isComposing) return;
+                                        if (event.key === 'ArrowDown' && pickerTags.length > 0) {
+                                            event.preventDefault();
+                                            setTagPickerOpen(true);
+                                            window.requestAnimationFrame(() => focusTagOption(0));
+                                            return;
+                                        }
+                                        if (event.key !== 'Enter' || !normalizedTagQuery) return;
+
+                                        if (filteredTags.length === 1) {
+                                            event.preventDefault();
+                                            chooseTag(filteredTags[0]);
+                                            return;
+                                        }
+                                        if (filteredTags.length > 1) {
+                                            event.preventDefault();
+                                            setTagPickerOpen(true);
+                                            window.requestAnimationFrame(() => focusTagOption(0));
+                                        }
                                     }}
                                 />
                                 <span aria-hidden="true">
@@ -2687,16 +2723,32 @@ export default function Home() {
                                         <small>{pickerTags.length}개</small>
                                     </header>
                                     {pickerTags.length > 0 ? (
-                                        pickerTags.map((tag) => (
+                                        pickerTags.map((tag, index) => (
                                             <button
                                                 key={tag}
+                                                ref={(element) => {
+                                                    tagOptionRefs.current[index] = element;
+                                                }}
                                                 type="button"
                                                 role="option"
                                                 aria-selected={activeFilters.includes(tag)}
                                                 className={
                                                     activeFilters.includes(tag) ? 'is-active' : undefined
                                                 }
-                                                onClick={() => toggleTag(tag)}
+                                                onClick={() => chooseTag(tag)}
+                                                onKeyDown={(event) => {
+                                                    if (event.key === 'ArrowDown') {
+                                                        event.preventDefault();
+                                                        focusTagOption(index + 1);
+                                                    } else if (event.key === 'ArrowUp') {
+                                                        event.preventDefault();
+                                                        focusTagOption(index - 1);
+                                                    } else if (event.key === 'Escape') {
+                                                        event.preventDefault();
+                                                        setTagPickerOpen(false);
+                                                        tagInputRef.current?.focus();
+                                                    }
+                                                }}
                                             >
                                                 <span>{tagLabel(tag)}</span>
                                                 <small>
