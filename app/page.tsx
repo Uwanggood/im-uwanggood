@@ -2516,7 +2516,7 @@ export default function Home() {
                     >
                         Profile
                     </a>
-                    <a href="mailto:thdwotkd123@gmail.com">Contact</a>
+                    <a href="#contact">Contact</a>
                 </nav>
 
                 <div className="masthead-actions">
@@ -3000,7 +3000,7 @@ export default function Home() {
                         </div>
                     </section>
 
-                    <footer className="profile-contact">
+                    <footer id="contact" className="profile-contact">
                         <div>
                             <span>Start a conversation</span>
                             <strong>함께 만들 이야기가 있다면.</strong>

@@ -3408,13 +3408,16 @@ button {
 
   .masthead {
     grid-template-columns: repeat(6, minmax(0, 1fr));
-    grid-template-rows: 58px 38px;
-    min-height: 96px;
+    grid-template-rows: 46px 38px;
+    row-gap: 0;
+    min-height: 84px;
   }
 
   .wordmark {
     grid-column: 1 / 4;
     grid-row: 1;
+    align-self: end;
+    padding-bottom: 4px;
   }
 
   .masthead-actions {
@@ -3580,7 +3583,7 @@ button {
   .timeline {
     position: sticky;
     z-index: 30;
-    top: 96px;
+    top: 84px;
     grid-column: 1 / 7;
     overflow: hidden;
     border-right: 0;
@@ -3603,7 +3606,7 @@ button {
   .timeline__groups {
     display: flex;
     gap: 6px;
-    padding: 6px 0;
+    padding: 12px 0 8px;
     overflow-x: auto;
     scrollbar-width: none;
   }
@@ -3638,8 +3641,8 @@ button {
 
   .project-card__visual,
   .project-card.is-featured .project-card__visual {
-    min-height: 78px;
-    padding: 15px 16px;
+    min-height: 0;
+    padding: 12px 16px 4px;
   }
 
   .project-card__meta {
@@ -3649,13 +3652,11 @@ button {
   }
 
   .project-card__index {
-    position: absolute;
-    right: 16px;
-    bottom: 9px;
+    display: none;
   }
 
   .project-card__body {
-    padding: 16px 18px 18px;
+    padding: 8px 18px 18px;
   }
 
   .project-card__match {
