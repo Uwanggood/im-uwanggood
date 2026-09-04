@@ -76,6 +76,8 @@ type CodeProof = {
     file: string;
     status: string;
     code: string[];
+    media?: ProjectMedia[];
+    note?: string;
 };
 
 const codeCategories: CodeCategory[] = [
@@ -494,54 +496,37 @@ const codeProofs: CodeProof[] = [
         ],
     },
     {
-        id: 'database-safe-apply',
+        id: 'database-erp-schema',
         category: 'Database',
-        product: 'Dart · PostgreSQL',
-        label: 'Lock, recheck, commit',
-        title: '잠금을 잡은 뒤 라이브 상태를 다시 확인하고 적용합니다.',
+        product: 'PostgreSQL · ERP',
+        label: '81-table domain model',
+        title: '81개 테이블을 업무 경계와 데이터 흐름에 맞춰 설계했습니다.',
         summary:
-            '실제 DB 마이그레이션 도구에서 advisory lock 이후 fingerprint를 재검사하고 COMMIT 전송 여부에 따라 실패와 결과 불명을 나눕니다.',
-        evidence: 'Advisory lock · TOCTOU recheck · commit ambiguity',
-        language: 'Dart 3 / PostgreSQL',
-        file: 'postgres_migration_gateway.dart',
-        status: 'Source-derived · identifiers anonymized',
-        code: [
-            'Stream<MigrationEvent> apply(FrozenMigration migration) async* {',
-            '  DatabaseExecutor? executor;',
-            '  var commitSent = false;',
-            '  try {',
-            '    executor = await factory.open(profile);',
-            '    final locked = await executor.query(',
-            "      'SELECT pg_try_advisory_lock(hashtextextended($1, 0))',",
-            '      [migration.lockName],',
-            '    );',
-            '    if (locked.first["locked"] != true) return;',
-            '',
-            '    final live = await inspection.introspect(profile);',
-            '    if (live.fingerprint != migration.liveFingerprint) {',
-            '      yield const MigrationFailed(sqlState: "40001");',
-            '      return;',
-            '    }',
-            '',
-            "    await executor.query('BEGIN');",
-            '    for (final statement in split(migration.upSql)) {',
-            '      await executor.query(statement);',
-            '    }',
-            '    await writeLedger(executor, migration);',
-            '    commitSent = true;',
-            "    await executor.query('COMMIT');",
-            '    yield const MigrationCommitted();',
-            '  } catch (error) {',
-            "    if (executor != null && !commitSent) await executor.query('ROLLBACK');",
-            '    yield commitSent',
-            '        ? MigrationResultUnknown(error)',
-            '        : MigrationFailed.from(error);',
-            '  } finally {',
-            "    await executor?.query('SELECT pg_advisory_unlock_all()');",
-            '    await executor?.close();',
-            '  }',
-            '}',
+            '테넌트·사용자·레슨·비용·정산·집계 영역을 분리하고, 쓰기 트랜잭션의 범위와 주요 조회 경로, 데이터 증가량을 기준으로 PK·FK와 보조 인덱스를 설계했습니다.',
+        evidence: '81 tables · 79 PKs · 74 FKs · 26 explicit indexes',
+        language: 'PostgreSQL / ERP Schema',
+        file: 'fit_cloud_erp_schema.sql',
+        status: 'Personal project · source-verified',
+        code: [],
+        media: [
+            {
+                src: '/code-proof/erp-schema-overview.png',
+                width: 1380,
+                height: 761,
+                alt: '81개 테이블로 구성한 개인 ERP 프로젝트의 전체 데이터베이스 ERD',
+                caption:
+                    '전체 설계 · 81개 테이블의 업무 영역과 참조 관계를 한 화면에서 검토한 ERD',
+            },
+            {
+                src: '/code-proof/erp-schema-detail.png',
+                width: 1422,
+                height: 784,
+                alt: '테넌트 사용자 레슨 비용 집계 영역을 확대한 ERP 데이터베이스 ERD',
+                caption:
+                    '관계 확대 · 테넌트·사용자·레슨·비용·집계 테이블의 키와 참조 구조',
+            },
         ],
+        note: '개인 ERP 프로젝트의 실제 PostgreSQL 스키마입니다. 전체 구조와 핵심 업무 영역의 확대 화면을 함께 제시했습니다.',
     },
     {
         id: 'database-immutable-archive',
@@ -1296,7 +1281,7 @@ const projects: Project[] = [
                     '원본 이미지 위에서 polygon을 수정하고 semantic part를 연결하는 라벨링 작업 화면.',
             },
             {
-                src: '/project-media/stitch-project-workspace.png',
+                src: '/project-media/stitch-project-workspace-blurred.png',
                 alt: 'Stitch에서 작업자에게 배정된 철스크랩 이미지 작업을 탐색하는 화면',
                 caption:
                     '배정된 원천 데이터를 상태·태그와 함께 탐색하고 라벨링 작업으로 진입하는 작업자 홈.',
@@ -1809,6 +1794,17 @@ const normalizeTagKey = (value: string) => {
     return normalized === 'cpp' ? 'c++' : normalized;
 };
 
+const companyRelationshipLabel = (company: string) => {
+    const name = company.trim();
+    const lastKoreanCharacter = Array.from(name).reverse().find((character) =>
+        /[가-힣]/.test(character),
+    );
+    if (!lastKoreanCharacter) return `${name}와의`;
+    const hasFinalConsonant =
+        (lastKoreanCharacter.charCodeAt(0) - 0xac00) % 28 !== 0;
+    return `${name}${hasFinalConsonant ? '과의' : '와의'}`;
+};
+
 const stackLabels = Object.fromEntries(
     projects.flatMap((project) =>
         project.stack.map((stack) => [normalizeTagKey(stack), stack]),
@@ -1974,10 +1970,6 @@ export default function Home() {
     const [tagPickerOpen, setTagPickerOpen] = useState(false);
     const targets = expandedSignals(activeFilters, company);
     const hasFocus = targets.size > 0;
-    const focusLabel =
-        activeFilters.length > 0
-            ? activeFilters.map(tagLabel).join(' · ')
-            : company || 'Target fit';
     const [viewOverride, setViewOverride] = useState<boolean | null>(null);
     const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
         null,
@@ -1990,7 +1982,9 @@ export default function Home() {
     const hiddenResumeDoubleClickCount = useRef(0);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [codeDrawerOpen, setCodeDrawerOpen] = useState(false);
-    const [lightboxMedia, setLightboxMedia] = useState<ProjectMedia | null>(null);
+    const [lightboxMediaIndex, setLightboxMediaIndex] = useState<number | null>(
+        null,
+    );
     const [selectedCodeProofId, setSelectedCodeProofId] = useState(
         codeProofs[0].id,
     );
@@ -2013,7 +2007,10 @@ export default function Home() {
     );
     const [showBackToTop, setShowBackToTop] = useState(false);
     const overlayOpen =
-        drawerOpen || codeDrawerOpen || lightboxMedia !== null || pdfSettingsOpen;
+        drawerOpen ||
+        codeDrawerOpen ||
+        lightboxMediaIndex !== null ||
+        pdfSettingsOpen;
     const showAll =
         viewOverride ??
         (urlState.showAll || urlState.projectIds.length > 0 || !hasFocus);
@@ -2090,6 +2087,12 @@ export default function Home() {
     const selectedProject =
         rankedProjects.find((project) => project.id === selectedProjectId) ??
         rankedProjects[0];
+    const selectedProjectMedia = selectedProject.media ?? [];
+    const selectedProjectMediaCount = selectedProjectMedia.length;
+    const lightboxMedia =
+        lightboxMediaIndex === null
+            ? null
+            : selectedProjectMedia[lightboxMediaIndex] ?? null;
     const selectedProjectIndex = selectedProject
         ? rankedProjects.findIndex((project) => project.id === selectedProject.id)
         : -1;
@@ -2218,10 +2221,29 @@ export default function Home() {
         if (!drawerOpen && !codeDrawerOpen && !lightboxMedia && !pdfSettingsOpen) {
             return;
         }
-        const closeOnEscape = (event: KeyboardEvent) => {
+        const handleOverlayKey = (event: KeyboardEvent) => {
+            if (lightboxMedia && event.key === 'ArrowLeft') {
+                event.preventDefault();
+                setLightboxMediaIndex((current) =>
+                    current === null
+                        ? null
+                        : (current - 1 + selectedProjectMediaCount) %
+                          selectedProjectMediaCount,
+                );
+                return;
+            }
+            if (lightboxMedia && event.key === 'ArrowRight') {
+                event.preventDefault();
+                setLightboxMediaIndex((current) =>
+                    current === null
+                        ? null
+                        : (current + 1) % selectedProjectMediaCount,
+                );
+                return;
+            }
             if (event.key !== 'Escape') return;
             if (lightboxMedia) {
-                setLightboxMedia(null);
+                setLightboxMediaIndex(null);
                 return;
             }
             if (pdfSettingsOpen) {
@@ -2232,9 +2254,15 @@ export default function Home() {
             setCodeDrawerOpen(false);
         };
 
-        window.addEventListener('keydown', closeOnEscape);
-        return () => window.removeEventListener('keydown', closeOnEscape);
-    }, [drawerOpen, codeDrawerOpen, lightboxMedia, pdfSettingsOpen]);
+        window.addEventListener('keydown', handleOverlayKey);
+        return () => window.removeEventListener('keydown', handleOverlayKey);
+    }, [
+        drawerOpen,
+        codeDrawerOpen,
+        lightboxMedia,
+        pdfSettingsOpen,
+        selectedProjectMediaCount,
+    ]);
 
     useEffect(() => {
         if (!overlayOpen) return;
@@ -2285,7 +2313,7 @@ export default function Home() {
         setProjectScope(scope);
         setSelectedProjectId(null);
         setActiveProjectId(null);
-        setLightboxMedia(null);
+        setLightboxMediaIndex(null);
         setDrawerOpen(false);
     };
 
@@ -2307,7 +2335,7 @@ export default function Home() {
         );
         setActiveFilters(uniqueFilters);
         setViewOverride(false);
-        setLightboxMedia(null);
+        setLightboxMediaIndex(null);
         setDrawerOpen(false);
     };
 
@@ -2324,7 +2352,7 @@ export default function Home() {
     const openProject = (projectId: string) => {
         setSelectedProjectId(projectId);
         setActiveProjectId(projectId);
-        setLightboxMedia(null);
+        setLightboxMediaIndex(null);
         setCodeDrawerOpen(false);
         setDrawerOpen(true);
     };
@@ -2501,9 +2529,11 @@ export default function Home() {
                         <span>as art.</span>
                     </h1>
                     <div className="hero-copy">
-                        <p>
-                            한 줄의 코드도 의도 없이 쓰지 않습니다. 짧고 간결한 코드는 하나의 예술이라고 생각합니다.
-                        </p>
+                        <p>{`간결하게 덜어내며 코드를 우아하게 표현하는 방법을 추구합니다.${
+                            company.trim()
+                                ? ` ${companyRelationshipLabel(company)} 일에서도 같은 마음으로 함께 코드를 담아내고 싶습니다.`
+                                : ''
+                        }`}</p>
                         <button type="button" onClick={() => setCodeDrawerOpen(true)}>
                             대표 코드 갤러리 · {codeProofs.length}선 ↗
                         </button>
@@ -2745,7 +2775,6 @@ export default function Home() {
                                                     (item) => item.id === project.id,
                                                 )}
                                                 selected={project.id === currentProjectId}
-                                                focusLabel={focusLabel}
                                                 matchProofs={
                                                     hasFocus ? projectMatchProofs(project, targets) : []
                                                 }
@@ -2772,19 +2801,37 @@ export default function Home() {
             />
 
             <ProjectDrawer
+                key={selectedProject.id}
                 project={selectedProject}
                 index={selectedProjectIndex}
                 open={drawerOpen}
-                onMediaOpen={setLightboxMedia}
+                onMediaOpen={setLightboxMediaIndex}
                 onClose={() => {
-                    setLightboxMedia(null);
+                    setLightboxMediaIndex(null);
                     setDrawerOpen(false);
                 }}
             />
 
             <MediaLightbox
                 media={lightboxMedia}
-                onClose={() => setLightboxMedia(null)}
+                index={lightboxMediaIndex ?? 0}
+                count={selectedProjectMediaCount}
+                onPrevious={() =>
+                    setLightboxMediaIndex((current) =>
+                        current === null
+                            ? null
+                            : (current - 1 + selectedProjectMediaCount) %
+                              selectedProjectMediaCount,
+                    )
+                }
+                onNext={() =>
+                    setLightboxMediaIndex((current) =>
+                        current === null
+                            ? null
+                            : (current + 1) % selectedProjectMediaCount,
+                    )
+                }
+                onClose={() => setLightboxMediaIndex(null)}
             />
 
             <CodeDrawer
@@ -2827,12 +2874,7 @@ export default function Home() {
                         </div>
                         <div className="profile-summary">
                             <p>
-                                간결하게 덜어내는 방법으로 코드를 우아하게 표현하는 방법을 추구 합니다.
-                                {company.trim() && (
-                                    <>
-                                        {' '}{company.trim()}와의 일에서도 그러한 마음으로 함께 코드를 담아내고 싶습니다.
-                                    </>
-                                )}
+                                한 줄의 코드도 의도 없이 쓰지 않습니다. 짧고 간결한 코드는 하나의 예술이라고 생각합니다.
                             </p>
                             <dl>
                                 <div>
@@ -2918,8 +2960,20 @@ export default function Home() {
                         <div>
                             <article>
                                 <time>2026.06</time>
-                                <strong>한국정보기술학회 하계종합학술대회</strong>
-                                <p>철스크랩 분류 모델의 attention 개선 연구 · 제2저자</p>
+                                <div className="profile-evidence__heading">
+                                    <strong>한국정보기술학회 하계종합학술대회</strong>
+                                    <a
+                                        href="https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE12900919"
+                                        target="_blank"
+                                        rel="noreferrer"
+                                    >
+                                        논문 보기 ↗
+                                    </a>
+                                </div>
+                                <p>
+                                    혼재된 객체 환경에서 어텐션 기반 철스크랩 분류의 성능 향상
+                                    기법 · 제2저자
+                                </p>
                             </article>
                             <article>
                                 <time>2024.06</time>
@@ -2944,7 +2998,13 @@ export default function Home() {
                             <span>Start a conversation</span>
                             <strong>함께 만들 이야기가 있다면.</strong>
                         </div>
-                        <a href="mailto:thdwotkd123@gmail.com">thdwotkd123@gmail.com ↗</a>
+                        <a
+                            href="https://mail.google.com/mail/?view=cm&fs=1&to=thdwotkd123@gmail.com"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            이메일 보내기 ↗
+                        </a>
                         <a href="tel:+821024082131">+82 10-2408-2131</a>
                     </footer>
                 </div>
@@ -2977,14 +3037,12 @@ function ProjectCard({
                          project,
                          index,
                          selected,
-                         focusLabel,
                          matchProofs,
                          onOpen,
                      }: {
     project: Project;
     index: number;
     selected: boolean;
-    focusLabel: string;
     matchProofs: MatchProof[];
     onOpen: (projectId: string) => void;
 }) {
@@ -3025,10 +3083,14 @@ function ProjectCard({
 
                 {matchProofs.length > 0 && (
                     <span className="project-card__match">
-            <strong>왜 이 기술과 연결되는가 · {focusLabel}</strong>
-                        {matchProofs.map((proof) => (
-                            <span key={proof.text}>{proof.text}</span>
-                        ))}
+                        <span className="project-card__match-list">
+                            {matchProofs.map((proof) => (
+                                <span className="project-card__match-item" key={proof.text}>
+                                    <b>{proofStackLabel(project, proof)}</b>
+                                    <span>{proof.text}</span>
+                                </span>
+                            ))}
+                        </span>
           </span>
                 )}
 
@@ -3091,7 +3153,7 @@ function ProjectMediaFigure({
                             }: {
     media: ProjectMedia;
     mediaIndex: number;
-    onMediaOpen: (media: ProjectMedia) => void;
+    onMediaOpen: (mediaIndex: number) => void;
 }) {
     const [paused, setPaused] = useState(false);
     const {frameCount, frameIndex, frameSrc} = useMediaSequence(media, paused);
@@ -3108,7 +3170,7 @@ function ProjectMediaFigure({
                 onPointerLeave={() => setPaused(false)}
                 onFocus={() => setPaused(true)}
                 onBlur={() => setPaused(false)}
-                onClick={() => onMediaOpen({...media, src: frameSrc})}
+                onClick={() => onMediaOpen(mediaIndex)}
             >
                 <Image
                     key={frameSrc}
@@ -3148,9 +3210,17 @@ function ProjectDrawer({
     project: Project;
     index: number;
     open: boolean;
-    onMediaOpen: (media: ProjectMedia) => void;
+    onMediaOpen: (mediaIndex: number) => void;
     onClose: () => void;
 }) {
+    const media = project.media ?? [];
+    const [activeMediaIndex, setActiveMediaIndex] = useState(0);
+    const panelRef = useRef<HTMLDialogElement>(null);
+
+    useEffect(() => {
+        if (open && panelRef.current) panelRef.current.scrollTop = 0;
+    }, [open, project.id]);
+
     return (
         <div
             className={`project-drawer${open ? ' is-open' : ''}`}
@@ -3164,6 +3234,7 @@ function ProjectDrawer({
                 onClick={onClose}
             />
             <dialog
+                ref={panelRef}
                 className="project-drawer__panel"
                 open={open}
                 aria-labelledby="drawer-title"
@@ -3196,21 +3267,52 @@ function ProjectDrawer({
                         </div>
                     </dl>
 
-                    {project.media?.length ? (
+                    {media.length ? (
                         <section
                             className="project-drawer__media"
                             aria-label={`${project.title} 작동 화면`}
                         >
-                            <h3>작동 화면</h3>
+                            <header className="project-drawer__media-header">
+                                <h3>작동 화면</h3>
+                                {media.length > 1 ? (
+                                    <nav aria-label="상세 이미지 탐색">
+                                        <span>
+                                            {String(activeMediaIndex + 1).padStart(2, '0')} /{' '}
+                                            {String(media.length).padStart(2, '0')}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setActiveMediaIndex(
+                                                    (current) =>
+                                                        (current - 1 + media.length) % media.length,
+                                                )
+                                            }
+                                            aria-label="이전 이미지"
+                                        >
+                                            ←
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setActiveMediaIndex(
+                                                    (current) => (current + 1) % media.length,
+                                                )
+                                            }
+                                            aria-label="다음 이미지"
+                                        >
+                                            →
+                                        </button>
+                                    </nav>
+                                ) : null}
+                            </header>
                             <div className="project-drawer__media-grid">
-                                {project.media.map((media, mediaIndex) => (
-                                    <ProjectMediaFigure
-                                        key={media.src}
-                                        media={media}
-                                        mediaIndex={mediaIndex}
-                                        onMediaOpen={onMediaOpen}
-                                    />
-                                ))}
+                                <ProjectMediaFigure
+                                    key={media[activeMediaIndex].src}
+                                    media={media[activeMediaIndex]}
+                                    mediaIndex={activeMediaIndex}
+                                    onMediaOpen={onMediaOpen}
+                                />
                             </div>
                         </section>
                     ) : null}
@@ -3224,10 +3326,14 @@ function ProjectDrawer({
                             <h3>내가 한 일</h3>
                             <p>{project.build}</p>
                         </section>
+                        <section>
+                            <h3>결과</h3>
+                            <p className="project-drawer__story-result">{project.outcome}</p>
+                        </section>
                     </div>
 
                     <section className="project-drawer__stack">
-                        <h3>구현에서 신경 쓴 것</h3>
+                        <h3>Stack별 구현에서 신경 쓴 것</h3>
                         <ul>
                             {project.matchProofs.map((proof) => (
                                 <li key={proof.text}>
@@ -3237,11 +3343,6 @@ function ProjectDrawer({
                             ))}
                         </ul>
                     </section>
-
-                    <section className="project-drawer__outcome">
-                        <h3>결과</h3>
-                        <p>{project.outcome}</p>
-                    </section>
                 </div>
             </dialog>
         </div>
@@ -3250,9 +3351,17 @@ function ProjectDrawer({
 
 function MediaLightbox({
                            media,
+                           index,
+                           count,
+                           onPrevious,
+                           onNext,
                            onClose,
                        }: {
     media: ProjectMedia | null;
+    index: number;
+    count: number;
+    onPrevious: () => void;
+    onNext: () => void;
     onClose: () => void;
 }) {
     return (
@@ -3274,7 +3383,12 @@ function MediaLightbox({
                 aria-labelledby="media-lightbox-title"
             >
                 <header className="media-lightbox__header">
-                    <span id="media-lightbox-title">작동 화면 확대</span>
+                    <span id="media-lightbox-title">
+                        작동 화면 확대
+                        {count > 1
+                            ? ` · ${String(index + 1).padStart(2, '0')} / ${String(count).padStart(2, '0')}`
+                            : ''}
+                    </span>
                     <button type="button" onClick={onClose} autoFocus>
                         닫기 <span aria-hidden="true">×</span>
                     </button>
@@ -3282,6 +3396,16 @@ function MediaLightbox({
                 {media ? (
                     <>
                         <MediaLightboxVisual key={media.src} media={media}/>
+                        {count > 1 ? (
+                            <nav className="media-lightbox__navigation" aria-label="확대 이미지 탐색">
+                                <button type="button" onClick={onPrevious} aria-label="이전 이미지">
+                                    <span aria-hidden="true">←</span>
+                                </button>
+                                <button type="button" onClick={onNext} aria-label="다음 이미지">
+                                    <span aria-hidden="true">→</span>
+                                </button>
+                            </nav>
+                        ) : null}
                         <p className="media-lightbox__caption">{media.caption}</p>
                     </>
                 ) : null}
@@ -3892,6 +4016,11 @@ function CodeDrawer({
     const categoryProofs = proofs.filter(
         (proof) => proof.category === selected.category,
     );
+    const stageRef = useRef<HTMLElement>(null);
+
+    useEffect(() => {
+        if (open && stageRef.current) stageRef.current.scrollTop = 0;
+    }, [open]);
 
     return (
         <div className={`code-drawer${open ? ' is-open' : ''}`} aria-hidden={!open}>
@@ -3905,12 +4034,12 @@ function CodeDrawer({
             <dialog
                 className="code-drawer__panel"
                 open={open}
-                aria-labelledby="code-drawer-title"
+                aria-label={`대표 코드 갤러리 · ${selected.category}`}
             >
                 <header className="code-drawer__header">
                     <div>
                         <span>Code gallery / {String(proofs.length).padStart(2, '0')}</span>
-                        <span>실제 코드 · 식별자만 비식별</span>
+                        <span>실제 구현 · 민감 정보만 비식별</span>
                     </div>
                     <button type="button" onClick={onClose} tabIndex={open ? 0 : -1}>
                         Close <span aria-hidden="true">×</span>
@@ -3947,7 +4076,7 @@ function CodeDrawer({
                         })}
                     </nav>
 
-                    <section className="code-drawer__stage">
+                    <section ref={stageRef} className="code-drawer__stage">
                         <div className="code-drawer__shelf">
                             <div>
                                 <span>{selected.category}</span>
@@ -3980,42 +4109,64 @@ function CodeDrawer({
               </span>
                             <span>{selected.status}</span>
                         </div>
-                        <h2 id="code-drawer-title">{selected.title}</h2>
                         <p>{selected.summary}</p>
 
-                        <div className="code-window">
-                            <header>
-                                <div aria-hidden="true">
-                                    <i/>
-                                    <i/>
-                                    <i/>
-                                </div>
-                                <span>{selected.file}</span>
-                                <small>{selected.language.split(' / ')[0]}</small>
-                            </header>
-                            <pre
-                                aria-label={`${selected.category} ${selected.product} 비식별 코드`}
-                            >
-                <code>
-                  {selected.code.map((line, index) => (
-                      <span key={`${selected.id}-${index}`}>
-                      <i aria-hidden="true">
-                        {String(index + 1).padStart(2, '0')}
-                      </i>
-                      <b>{highlightCodeLine(line)}</b>
-                    </span>
-                  ))}
-                </code>
-              </pre>
-                        </div>
+                        {selected.media ? (
+                            <div className="code-visuals">
+                                {selected.media.map((media) => (
+                                    <figure key={media.src}>
+                                        <a
+                                            href={media.src}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            aria-label={`${media.alt} 원본 보기`}
+                                        >
+                                            <Image
+                                                src={media.src}
+                                                width={media.width}
+                                                height={media.height}
+                                                sizes="(max-width: 760px) 100vw, 900px"
+                                                alt={media.alt}
+                                            />
+                                        </a>
+                                        <figcaption>{media.caption}</figcaption>
+                                    </figure>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="code-window">
+                                <header>
+                                    <div aria-hidden="true">
+                                        <i/>
+                                        <i/>
+                                        <i/>
+                                    </div>
+                                    <span>{selected.file}</span>
+                                    <small>{selected.language.split(' / ')[0]}</small>
+                                </header>
+                                <pre
+                                    aria-label={`${selected.category} ${selected.product} 비식별 코드`}
+                                >
+                  <code>
+                    {selected.code.map((line, index) => (
+                        <span key={`${selected.id}-${index}`}>
+                        <i aria-hidden="true">
+                          {String(index + 1).padStart(2, '0')}
+                        </i>
+                        <b>{highlightCodeLine(line)}</b>
+                      </span>
+                    ))}
+                  </code>
+                </pre>
+                            </div>
+                        )}
 
                         <footer className="code-drawer__evidence">
                             <span>What this shows</span>
                             <strong>{selected.evidence}</strong>
                             <p>
-                                실제 저장소에서 선별한 코드입니다. 회사·고객·도메인 식별자와
-                                민감한 리터럴만 치환했으며 제어 흐름과 알고리즘은 원본을
-                                유지했습니다.
+                                {selected.note ??
+                                    '실제 저장소에서 선별한 코드입니다. 회사·고객·도메인 식별자와 민감한 리터럴만 치환했으며 제어 흐름과 알고리즘은 원본을 유지했습니다.'}
                             </p>
                         </footer>
                     </section>
