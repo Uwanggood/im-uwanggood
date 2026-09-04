@@ -194,8 +194,19 @@ const styles = StyleSheet.create({
     borderRadius: 2,
     backgroundColor: '#f7f7f5',
   },
+  projectMediaRow: {
+    flexDirection: 'row',
+    gap: 6,
+  },
+  projectVisualPaired: {
+    flex: 1,
+  },
   projectImage: {
     width: '100%',
+    height: 260,
+    objectFit: 'contain',
+  },
+  projectImageWide: {
     height: 84,
     objectFit: 'contain',
   },
@@ -354,15 +365,14 @@ export function ResumePdfDocument({
       })
       .filter((proof): proof is { labels: string[]; text: string } => Boolean(proof))
       .slice(0, 3);
-  const mediaSource = (project: Project) => {
-    const media = project.media?.[0];
-    if (!media) return null;
-    const source = media.frames?.[0] ?? media.src;
-    return {
-      ...media,
-      source: /^https?:\/\//.test(source) ? source : `${assetOrigin}${source}`,
-    };
-  };
+  const mediaSources = (project: Project) =>
+    project.media?.slice(0, 2).map((media) => {
+      const source = media.frames?.[0] ?? media.src;
+      return {
+        ...media,
+        source: /^https?:\/\//.test(source) ? source : `${assetOrigin}${source}`,
+      };
+    }) ?? [];
 
   return (
     <Document
@@ -428,10 +438,15 @@ export function ResumePdfDocument({
           </View>
 
           {selectedProjects.map((project) => {
-            const media = includeImages ? mediaSource(project) : null;
+            const media = includeImages ? mediaSources(project) : [];
+            const pairedMedia =
+              media.length === 2 &&
+              media.every(
+                (item) => item.width && item.height && item.height > item.width,
+              );
             const proofs = technologyProofs(project);
             return (
-            <View key={project.id} style={styles.project} minPresenceAhead={90}>
+            <View key={project.id} style={styles.project}>
               <View style={styles.projectMeta}>
                 <Text style={styles.projectPeriod}>{project.period}</Text>
                 <Text style={styles.projectCompany}>{project.company}</Text>
@@ -463,12 +478,27 @@ export function ResumePdfDocument({
                     ))}
                   </View>
                 ) : null}
-                {media ? (
-                  <View style={styles.projectVisual}>
-                    <Image src={media.source} style={styles.projectImage} />
-                    <Text style={styles.projectImageCaption}>{media.caption}</Text>
-                  </View>
-                ) : null}
+                <View style={pairedMedia ? styles.projectMediaRow : {}}>
+                  {media.map((item) => (
+                    <View
+                      key={item.source}
+                      style={[
+                        styles.projectVisual,
+                        pairedMedia ? styles.projectVisualPaired : {},
+                      ]}
+                      wrap={false}
+                    >
+                      <Image
+                        src={item.source}
+                        style={[
+                          styles.projectImage,
+                          item.naturalRatio ? styles.projectImageWide : {},
+                        ]}
+                      />
+                      <Text style={styles.projectImageCaption}>{item.caption}</Text>
+                    </View>
+                  ))}
+                </View>
                 <Text style={styles.outcome}>{project.outcome}</Text>
                 <Text style={styles.stack}>
                   <Text style={styles.stackLabel}>사용 기술 · </Text>

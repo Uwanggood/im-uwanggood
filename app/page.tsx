@@ -62,6 +62,9 @@ type ResumePdfSettings = {
     includeImages: boolean;
 };
 
+const resumePortfolioUrl =
+    'https://song-jaesang-portfolio.thdwotkd123.chatgpt.site';
+
 type CodeCategory = 'Frontend' | 'Backend' | 'Database' | 'Model' | 'Query';
 
 type CodeProof = {
@@ -1156,12 +1159,16 @@ const projects: Project[] = [
         media: [
             {
                 src: '/project-media/nexteel-analysis-detail.png',
+                width: 382,
+                height: 819,
                 alt: 'Nexteel에서 고철 사진의 AI 분석 결과와 검출 카테고리 비율을 보여주는 화면',
                 caption:
                     '촬영한 고철에서 103개 객체와 6개 품목을 검출하고 카테고리별 비율을 보여주는 AI 감정 상세 화면.',
             },
             {
                 src: '/project-media/nexteel-listing-detail.png',
+                width: 376,
+                height: 816,
                 alt: 'Nexteel 고철 매물의 기본 정보와 AI 판정 등급, 문의 기능을 보여주는 화면',
                 caption:
                     '판매자가 등록한 고철의 지역·분류·AI 판정 등급을 확인하고 채팅이나 견적으로 이어지는 매물 상세 화면.',
@@ -2389,7 +2396,7 @@ export default function Home() {
     };
 
     const openResumeSettings = () => {
-        setPortfolioBaseUrl(`${window.location.origin}${window.location.pathname}`);
+        setPortfolioBaseUrl(resumePortfolioUrl);
         setPdfSettings({
             company,
             signals: activeFilters,
@@ -2446,7 +2453,7 @@ export default function Home() {
                 throw new Error('PDF에 포함할 프로젝트를 한 개 이상 선택해 주세요.');
             }
             const portfolioUrl = buildPortfolioUrl(
-                portfolioBaseUrl || `${window.location.origin}${window.location.pathname}`,
+                portfolioBaseUrl || resumePortfolioUrl,
                 settings,
             );
             const {downloadResumePdf} = await import('./resume-pdf');
@@ -3956,7 +3963,7 @@ function PdfSettingsDialog({
                             />
                             <span>
                                 프로젝트 대표 이미지 포함
-                                <small>이미지가 있는 프로젝트마다 대표 장면 한 장을 넣습니다.</small>
+                                <small>이미지가 있는 프로젝트마다 대표 장면을 최대 두 장 넣습니다.</small>
                             </span>
                         </label>
                     </section>
