@@ -1952,11 +1952,11 @@ const expandedSignals = (signals: string[], company: string) =>
 
 const buildPortfolioUrl = (baseUrl: string, settings: ResumePdfSettings) => {
     const url = new URL(baseUrl);
+    ['signal', 'signals', 'some_signal', 'tags', 'tech'].forEach((key) =>
+        url.searchParams.delete(key),
+    );
     if (settings.company.trim()) {
         url.searchParams.set('company', settings.company.trim());
-    }
-    if (settings.signals.length > 0) {
-        url.searchParams.set('tech', settings.signals.join(','));
     }
     url.searchParams.set('view', 'all');
     url.searchParams.set('primary', settings.primaryColor);
@@ -2000,7 +2000,7 @@ export default function Home() {
     const [portfolioBaseUrl, setPortfolioBaseUrl] = useState('');
     const [pdfSettings, setPdfSettings] = useState<ResumePdfSettings>({
         company,
-        signals: activeFilters,
+        signals: [],
         projectIds: projects.slice(0, 4).map((project) => project.id),
         scope: projectScope,
         primaryColor: urlState.primaryColor,
@@ -2397,10 +2397,15 @@ export default function Home() {
 
     const openResumeSettings = () => {
         setPortfolioBaseUrl(resumePortfolioUrl);
+        const defaultProjects = projects.filter((project) => {
+            if (projectScope === 'personal') return project.company === 'Independent';
+            if (projectScope === 'work') return project.company !== 'Independent';
+            return true;
+        });
         setPdfSettings({
             company,
-            signals: activeFilters,
-            projectIds: rankedProjects.slice(0, 4).map((project) => project.id),
+            signals: [],
+            projectIds: defaultProjects.slice(0, 4).map((project) => project.id),
             scope: projectScope,
             primaryColor: urlState.primaryColor,
             secondaryColor: urlState.secondaryColor,
