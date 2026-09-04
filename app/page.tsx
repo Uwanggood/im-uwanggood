@@ -1738,6 +1738,50 @@ const projects: Project[] = [
     },
 ];
 
+const periodMonths: Record<string, number> = {
+    jan: 1,
+    feb: 2,
+    mar: 3,
+    apr: 4,
+    may: 5,
+    jun: 6,
+    jul: 7,
+    aug: 8,
+    sep: 9,
+    oct: 10,
+    nov: 11,
+    dec: 12,
+};
+
+const projectRecencyKey = (project: Project) => {
+    const period = project.period.toLowerCase();
+    const years = [...period.matchAll(/\d{4}/g)].map(([year]) => Number(year));
+    const months = [
+        ...period.matchAll(/\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\b/g),
+    ].map(([month]) => periodMonths[month]);
+    const startYear = years[0] ?? 0;
+    const endYear = years.at(-1) ?? startYear;
+    const startMonth = months[0] ?? 12;
+    const endMonth = months.at(-1) ?? startMonth;
+
+    return period.includes('current')
+        ? [1, startYear, startMonth]
+        : [0, endYear, endMonth, startYear, startMonth];
+};
+
+const compareProjectsByRecency = (left: Project, right: Project) => {
+    const leftKey = projectRecencyKey(left);
+    const rightKey = projectRecencyKey(right);
+    const length = Math.max(leftKey.length, rightKey.length);
+
+    for (let index = 0; index < length; index += 1) {
+        const difference = (rightKey[index] ?? 0) - (leftKey[index] ?? 0);
+        if (difference !== 0) return difference;
+    }
+
+    return 0;
+};
+
 const signalAliases: Record<string, string[]> = {
     카드결제: ['payments', 'accounting', 'data-integrity'],
     결제: ['payments', 'accounting'],
@@ -2001,7 +2045,10 @@ export default function Home() {
     const [pdfSettings, setPdfSettings] = useState<ResumePdfSettings>({
         company,
         signals: [],
-        projectIds: projects.slice(0, 4).map((project) => project.id),
+        projectIds: [...projects]
+            .sort(compareProjectsByRecency)
+            .slice(0, 4)
+            .map((project) => project.id),
         scope: projectScope,
         primaryColor: urlState.primaryColor,
         secondaryColor: urlState.secondaryColor,
@@ -2397,11 +2444,13 @@ export default function Home() {
 
     const openResumeSettings = () => {
         setPortfolioBaseUrl(resumePortfolioUrl);
-        const defaultProjects = projects.filter((project) => {
-            if (projectScope === 'personal') return project.company === 'Independent';
-            if (projectScope === 'work') return project.company !== 'Independent';
-            return true;
-        });
+        const defaultProjects = projects
+            .filter((project) => {
+                if (projectScope === 'personal') return project.company === 'Independent';
+                if (projectScope === 'work') return project.company !== 'Independent';
+                return true;
+            })
+            .sort(compareProjectsByRecency);
         setPdfSettings({
             company,
             signals: [],
@@ -2429,17 +2478,7 @@ export default function Home() {
         setPdfError(null);
 
         try {
-            const pdfTargets = expandedSignals(settings.signals, settings.company);
             const pdfRanked = projects
-                .map((project, index) => ({
-                    ...project,
-                    index,
-                    score: [...pdfTargets].reduce(
-                        (total, target) =>
-                            total + (projectMatchesTarget(project, target) ? 1 : 0),
-                        0,
-                    ),
-                }))
                 .filter((project) => {
                     if (settings.scope === 'personal') {
                         return project.company === 'Independent';
@@ -2449,7 +2488,7 @@ export default function Home() {
                     }
                     return true;
                 })
-                .sort((a, b) => b.score - a.score || a.index - b.index);
+                .sort(compareProjectsByRecency);
             const selectedPdfProjectIds = new Set(settings.projectIds);
             const pdfProjects = pdfRanked.filter((project) =>
                 selectedPdfProjectIds.has(project.id),
@@ -3480,23 +3519,13 @@ function PdfSettingsDialog({
     const visibleTags = availableTags.filter((tag) =>
         `${tag} ${tagLabel(tag)}`.toLowerCase().includes(normalizedQuery),
     );
-    const selectionTargets = expandedSignals(settings.signals, settings.company);
     const selectableProjects = projects
-        .map((project, index) => ({
-            ...project,
-            index,
-            score: [...selectionTargets].reduce(
-                (total, target) =>
-                    total + (projectMatchesTarget(project, target) ? 1 : 0),
-                0,
-            ),
-        }))
         .filter((project) => {
             if (settings.scope === 'work') return project.company !== 'Independent';
             if (settings.scope === 'personal') return project.company === 'Independent';
             return true;
         })
-        .sort((a, b) => b.score - a.score || a.index - b.index);
+        .sort(compareProjectsByRecency);
     const portfolioUrl = baseUrl ? buildPortfolioUrl(baseUrl, settings) : '';
 
     const toggleSignal = (tag: string) => {
@@ -3509,11 +3538,13 @@ function PdfSettingsDialog({
     };
 
     const selectScope = (scope: ProjectScope) => {
-        const projectsInScope = projects.filter((project) => {
-            if (scope === 'work') return project.company !== 'Independent';
-            if (scope === 'personal') return project.company === 'Independent';
-            return true;
-        });
+        const projectsInScope = projects
+            .filter((project) => {
+                if (scope === 'work') return project.company !== 'Independent';
+                if (scope === 'personal') return project.company === 'Independent';
+                return true;
+            })
+            .sort(compareProjectsByRecency);
         const allowedIds = new Set(projectsInScope.map((project) => project.id));
         const retainedIds = settings.projectIds.filter((id) => allowedIds.has(id));
         onChange({
@@ -3825,8 +3856,7 @@ function PdfSettingsDialog({
                         <label className="pdf-settings__label" htmlFor="pdf-technology-search">
                             <span>강조할 기술</span>
                             <small>
-                                관련 프로젝트를 위로 정렬하고, PDF에 그 기술을 사용한 이유와
-                                구현 근거를 추가합니다.
+                                PDF에 그 기술을 사용한 이유와 구현 근거를 추가합니다.
                             </small>
                         </label>
                         {settings.signals.length > 0 ? (
@@ -3872,8 +3902,7 @@ function PdfSettingsDialog({
                         <div className="pdf-settings__label">
                             <span>PDF에 넣을 프로젝트</span>
                             <small>
-                                프로젝트마다 사용 기술이 표시됩니다. 강조 기술과 맞는 항목은
-                                위로 정렬됩니다.
+                                프로젝트마다 사용 기술이 표시되며 최신순으로 정렬됩니다.
                             </small>
                         </div>
                         <div className="pdf-settings__project-picker">
@@ -3994,7 +4023,7 @@ function PdfSettingsDialog({
                     </section>
 
                     <footer className="pdf-settings__actions">
-                        <p>선택한 조건으로 프로젝트를 다시 정렬해 PDF를 만듭니다.</p>
+                        <p>선택한 프로젝트를 최신순으로 정렬해 PDF를 만듭니다.</p>
                         <button
                             type="submit"
                             disabled={
