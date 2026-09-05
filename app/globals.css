@@ -1265,13 +1265,17 @@ button {
   text-transform: uppercase;
 }
 
-.project-drawer {
+.project-drawer,
+.code-drawer {
   --drawer-background: #1d1d1f;
   --drawer-surface: #242426;
   --drawer-text: #f5f5f7;
   --drawer-secondary: #c7c7cc;
   --drawer-tertiary: #8e8e93;
   --drawer-line: rgb(255 255 255 / 12%);
+}
+
+.project-drawer {
   position: fixed;
   z-index: 100;
   inset: 0;

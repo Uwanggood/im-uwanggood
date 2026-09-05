@@ -2052,6 +2052,7 @@ export default function Home() {
     const [lightboxMediaIndex, setLightboxMediaIndex] = useState<number | null>(
         null,
     );
+    const [lightboxSource, setLightboxSource] = useState<'project' | 'code'>('project');
     const [selectedCodeProofId, setSelectedCodeProofId] = useState(
         codeProofs[0].id,
     );
@@ -2158,11 +2159,16 @@ export default function Home() {
         rankedProjects.find((project) => project.id === selectedProjectId) ??
         rankedProjects[0];
     const selectedProjectMedia = selectedProject.media ?? [];
-    const selectedProjectMediaCount = selectedProjectMedia.length;
+    const selectedCodeProof =
+        codeProofs.find((proof) => proof.id === selectedCodeProofId) ?? codeProofs[0];
+    const lightboxItems = lightboxSource === 'code'
+        ? selectedCodeProof.media ?? []
+        : selectedProjectMedia;
+    const lightboxMediaCount = lightboxItems.length;
     const lightboxMedia =
         lightboxMediaIndex === null
             ? null
-            : selectedProjectMedia[lightboxMediaIndex] ?? null;
+            : lightboxItems[lightboxMediaIndex] ?? null;
     const selectedProjectIndex = selectedProject
         ? rankedProjects.findIndex((project) => project.id === selectedProject.id)
         : -1;
@@ -2297,8 +2303,8 @@ export default function Home() {
                 setLightboxMediaIndex((current) =>
                     current === null
                         ? null
-                        : (current - 1 + selectedProjectMediaCount) %
-                          selectedProjectMediaCount,
+                        : (current - 1 + lightboxMediaCount) %
+                          lightboxMediaCount,
                 );
                 return;
             }
@@ -2307,7 +2313,7 @@ export default function Home() {
                 setLightboxMediaIndex((current) =>
                     current === null
                         ? null
-                        : (current + 1) % selectedProjectMediaCount,
+                        : (current + 1) % lightboxMediaCount,
                 );
                 return;
             }
@@ -2331,7 +2337,7 @@ export default function Home() {
         codeDrawerOpen,
         lightboxMedia,
         pdfSettingsOpen,
-        selectedProjectMediaCount,
+        lightboxMediaCount,
     ]);
 
     useEffect(() => {
@@ -2922,7 +2928,10 @@ export default function Home() {
                 project={selectedProject}
                 index={selectedProjectIndex}
                 open={drawerOpen}
-                onMediaOpen={setLightboxMediaIndex}
+                onMediaOpen={(index) => {
+                    setLightboxSource('project');
+                    setLightboxMediaIndex(index);
+                }}
                 onClose={() => {
                     setLightboxMediaIndex(null);
                     setDrawerOpen(false);
@@ -2932,20 +2941,20 @@ export default function Home() {
             <MediaLightbox
                 media={lightboxMedia}
                 index={lightboxMediaIndex ?? 0}
-                count={selectedProjectMediaCount}
+                count={lightboxMediaCount}
                 onPrevious={() =>
                     setLightboxMediaIndex((current) =>
                         current === null
                             ? null
-                            : (current - 1 + selectedProjectMediaCount) %
-                              selectedProjectMediaCount,
+                            : (current - 1 + lightboxMediaCount) %
+                              lightboxMediaCount,
                     )
                 }
                 onNext={() =>
                     setLightboxMediaIndex((current) =>
                         current === null
                             ? null
-                            : (current + 1) % selectedProjectMediaCount,
+                            : (current + 1) % lightboxMediaCount,
                     )
                 }
                 onClose={() => setLightboxMediaIndex(null)}
@@ -2955,8 +2964,18 @@ export default function Home() {
                 proofs={codeProofs}
                 selectedId={selectedCodeProofId}
                 open={codeDrawerOpen}
-                onSelect={setSelectedCodeProofId}
-                onClose={() => setCodeDrawerOpen(false)}
+                onSelect={(id) => {
+                    setLightboxMediaIndex(null);
+                    setSelectedCodeProofId(id);
+                }}
+                onMediaOpen={(index) => {
+                    setLightboxSource('code');
+                    setLightboxMediaIndex(index);
+                }}
+                onClose={() => {
+                    setLightboxMediaIndex(null);
+                    setCodeDrawerOpen(false);
+                }}
             />
 
             <section id="profile" className="profile-section">
@@ -3304,6 +3323,37 @@ function ProjectMediaFigure({
     );
 }
 
+function MediaGallery({media, title, onMediaOpen}: {
+    media: ProjectMedia[];
+    title: string;
+    onMediaOpen: (mediaIndex: number) => void;
+}) {
+    const [activeMediaIndex, setActiveMediaIndex] = useState(0);
+    if (!media.length) return null;
+    return (
+        <section className="project-drawer__media" aria-label={title + ' 작동 화면'}>
+            <header className="project-drawer__media-header">
+                <h3>작동 화면</h3>
+                {media.length > 1 ? (
+                    <nav aria-label="상세 이미지 탐색">
+                        <span>{String(activeMediaIndex + 1).padStart(2, '0')} / {String(media.length).padStart(2, '0')}</span>
+                        <button type="button" aria-label="이전 이미지" onClick={() => setActiveMediaIndex(current => (current - 1 + media.length) % media.length)}>←</button>
+                        <button type="button" aria-label="다음 이미지" onClick={() => setActiveMediaIndex(current => (current + 1) % media.length)}>→</button>
+                    </nav>
+                ) : null}
+            </header>
+            <div className="project-drawer__media-grid">
+                <ProjectMediaFigure
+                    key={media[activeMediaIndex].src}
+                    media={media[activeMediaIndex]}
+                    mediaIndex={activeMediaIndex}
+                    onMediaOpen={onMediaOpen}
+                />
+            </div>
+        </section>
+    );
+}
+
 function ProjectDrawer({
                            project,
                            index,
@@ -3318,7 +3368,6 @@ function ProjectDrawer({
     onClose: () => void;
 }) {
     const media = project.media ?? [];
-    const [activeMediaIndex, setActiveMediaIndex] = useState(0);
     const panelRef = useRef<HTMLDialogElement>(null);
 
     useEffect(() => {
@@ -3371,55 +3420,12 @@ function ProjectDrawer({
                         </div>
                     </dl>
 
-                    {media.length ? (
-                        <section
-                            className="project-drawer__media"
-                            aria-label={`${project.title} 작동 화면`}
-                        >
-                            <header className="project-drawer__media-header">
-                                <h3>작동 화면</h3>
-                                {media.length > 1 ? (
-                                    <nav aria-label="상세 이미지 탐색">
-                                        <span>
-                                            {String(activeMediaIndex + 1).padStart(2, '0')} /{' '}
-                                            {String(media.length).padStart(2, '0')}
-                                        </span>
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                setActiveMediaIndex(
-                                                    (current) =>
-                                                        (current - 1 + media.length) % media.length,
-                                                )
-                                            }
-                                            aria-label="이전 이미지"
-                                        >
-                                            ←
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                setActiveMediaIndex(
-                                                    (current) => (current + 1) % media.length,
-                                                )
-                                            }
-                                            aria-label="다음 이미지"
-                                        >
-                                            →
-                                        </button>
-                                    </nav>
-                                ) : null}
-                            </header>
-                            <div className="project-drawer__media-grid">
-                                <ProjectMediaFigure
-                                    key={media[activeMediaIndex].src}
-                                    media={media[activeMediaIndex]}
-                                    mediaIndex={activeMediaIndex}
-                                    onMediaOpen={onMediaOpen}
-                                />
-                            </div>
-                        </section>
-                    ) : null}
+                    <MediaGallery
+                        key={project.id}
+                        media={media}
+                        title={project.title}
+                        onMediaOpen={onMediaOpen}
+                    />
 
                     <div className="project-drawer__story">
                         <section>
@@ -4097,12 +4103,14 @@ function CodeDrawer({
                         selectedId,
                         open,
                         onSelect,
+                        onMediaOpen,
                         onClose,
                     }: {
     proofs: CodeProof[];
     selectedId: string;
     open: boolean;
     onSelect: (id: string) => void;
+    onMediaOpen: (mediaIndex: number) => void;
     onClose: () => void;
 }) {
     const selected = proofs.find((proof) => proof.id === selectedId) ?? proofs[0];
@@ -4206,27 +4214,12 @@ function CodeDrawer({
                         <p>{selected.summary}</p>
 
                         {selected.media ? (
-                            <div className="code-visuals">
-                                {selected.media.map((media) => (
-                                    <figure key={media.src}>
-                                        <a
-                                            href={media.src}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            aria-label={`${media.alt} 원본 보기`}
-                                        >
-                                            <Image
-                                                src={media.src}
-                                                width={media.width}
-                                                height={media.height}
-                                                sizes="(max-width: 760px) 100vw, 900px"
-                                                alt={media.alt}
-                                            />
-                                        </a>
-                                        <figcaption>{media.caption}</figcaption>
-                                    </figure>
-                                ))}
-                            </div>
+                            <MediaGallery
+                                key={selected.id}
+                                media={selected.media}
+                                title={selected.title}
+                                onMediaOpen={onMediaOpen}
+                            />
                         ) : (
                             <div className="code-window">
                                 <header>
