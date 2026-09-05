@@ -12,6 +12,7 @@ import {
   pdf,
 } from '@react-pdf/renderer';
 import type { Project } from './page';
+import { resumeEvidence } from './resume-evidence';
 
 type ResumePdfInput = {
   company: string;
@@ -322,6 +323,30 @@ const styles = StyleSheet.create({
     fontSize: 6.8,
     lineHeight: 1.55,
   },
+  evidenceItem: {
+    flexDirection: 'row',
+    gap: 12,
+    paddingTop: 6,
+    paddingBottom: 5,
+  },
+  evidenceDate: {
+    width: 51,
+    color: '#777777',
+    fontSize: 7,
+  },
+  evidenceContent: {
+    flex: 1,
+  },
+  evidenceTitle: {
+    fontSize: 8,
+    fontWeight: 700,
+  },
+  evidenceDetail: {
+    marginTop: 2,
+    color: '#4d4d4d',
+    fontSize: 7.3,
+    lineHeight: 1.5,
+  },
   footer: {
     position: 'absolute',
     right: 46,
@@ -360,7 +385,7 @@ export function ResumePdfDocument({
   const selectedProjects = projects;
   const skills = [
     ...new Set(selectedProjects.flatMap((project) => project.stack)),
-  ].slice(0, 18);
+  ];
   const normalizedSignals = signals.map((signal, index) => ({
     key: normalizePdfSignal(signal),
     label: signalLabels[index] ?? signal,
@@ -522,11 +547,11 @@ export function ResumePdfDocument({
                 <Text style={styles.projectTitle}>{project.title}</Text>
                 <Text style={styles.projectSummary}>{project.summary}</Text>
                 <View style={styles.caseNotes}>
-                  <View style={styles.caseNote}>
+                  <View style={styles.caseNote} wrap={false}>
                     <Text style={styles.caseLabel}>문제</Text>
                     <Text style={styles.caseText}>{project.startingPoint}</Text>
                   </View>
-                  <View style={styles.caseNote}>
+                  <View style={styles.caseNote} wrap={false}>
                     <Text style={styles.caseLabel}>판단·구현</Text>
                     <Text style={styles.caseText}>{project.build}</Text>
                   </View>
@@ -559,6 +584,27 @@ export function ResumePdfDocument({
             </View>
             );
           })}
+        </View>
+
+        <View style={styles.section}>
+          <View style={styles.sectionHeader} minPresenceAhead={46}>
+            <Text style={styles.sectionTitle}>논문 · 포상</Text>
+          </View>
+          {resumeEvidence.map((item) => (
+            <View key={item.title} style={styles.evidenceItem} wrap={false}>
+              <Text style={styles.evidenceDate}>{item.date}</Text>
+              <View style={styles.evidenceContent}>
+                <Text style={styles.evidenceTitle}>{item.title}</Text>
+                {item.url ? (
+                  <Link src={item.url} style={[styles.evidenceDetail, { color: primaryColor }]}>
+                    {item.detail}
+                  </Link>
+                ) : (
+                  <Text style={styles.evidenceDetail}>{item.detail}</Text>
+                )}
+              </View>
+            </View>
+          ))}
         </View>
 
         <View style={styles.section} wrap={false}>

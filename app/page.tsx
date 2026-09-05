@@ -9,6 +9,7 @@ import {
 } from 'react';
 import Image from 'next/image';
 import {useSearchParams} from 'next/navigation';
+import {resumeEvidence} from './resume-evidence';
 
 type MatchProof = {
     signals: string[];
@@ -776,11 +777,11 @@ const projects: Project[] = [
             '흩어진 데이터셋과 학습 실행, metric·log·artifact를 재현 가능한 하나의 실행 이력으로 연결했습니다.',
         lead: '성능이 좋았던 weight를 찾고도 어떤 데이터와 설정으로 만들었는지 몰라 다시 학습하는 일이 반복됐습니다. 학습 코드를 하나 더 만드는 대신, 실행 자체가 기록으로 남는 플랫폼을 만들었습니다.',
         startingPoint:
-            '데이터셋·코드·metric·artifact가 서로 다른 장소에 흩어져 있었습니다. 파일은 남아 있어도 다시 찾는 과정의 어려움, 모델 마다 다른 업무로 정형화 된 규칙을 적용하기 어려웠습니다.',
+            '데이터셋·코드·metric·artifact가 서로 다른 장소에 흩어져 있어 필요한 파일을 다시 찾기 어려웠습니다. 모델마다 학습 방식도 달라 하나의 규칙으로 관리하기 어려웠습니다.',
         build:
             '한 번의 학습을 데이터셋 내용 버전, Git revision, 입력값, metric·로그·GPU 사용량, 최종 artifact로 정의했습니다. Flutter 화면과 Go 백엔드, 학습 서버 Agent를 연결해 실행부터 결과 보관까지 같은 기록으로 추적되게 했습니다. Agent는 GPU·CPU·RAM·디스크 상태를 Prometheus 형식으로 노출하고, Grafana Alloy가 5초마다 수집해 Mimir에 저장한 뒤 Go 백엔드가 gRPC로 화면에 전달하도록 구성했습니다.',
         outcome:
-            '데이터들의 중앙화, 그리고 여러 컴퓨터를 이동 할 필요없이 프로그램을 통해 학습 및 실험 결과 관리가 가능해 졌습니다.',
+            '흩어진 데이터를 한곳에 모아, 여러 컴퓨터를 오가지 않고 학습과 실험 결과를 관리할 수 있게 됐습니다.',
         stack: ['Flutter', 'Go', 'Prometheus', 'Grafana Alloy', 'Mimir', 'RabbitMQ', 'Redis', 'Object Storage', 'MLOps'],
         tags: [
             'ai',
@@ -855,7 +856,7 @@ const projects: Project[] = [
             '용어사전과 ERD, 실제 PostgreSQL 비교, 안전한 DDL 적용과 버전 이력을 연결한 local-first 데스크톱 앱입니다.',
         lead: 'DataGrip 콘솔이 사라진 뒤 예전에 실행한 DDL을 찾느라 시간을 쓴 적이 많았습니다. 제가 설계하고 배포한 DB 변경을 제 기억이 아니라 기록에 맡기려고 만든 도구입니다.',
         startingPoint:
-            'DDL을 일일히 작성하는 것은 많아지면 파악하기가 어려웠습니다. 또 테이블 변경 이력 등의 관리가 어려웠고 테이블 컬럼 규칙을 일일히 찾아서 적용하기가 번거로웠습니다.',
+            'DDL이 많아질수록 테이블 구조와 변경 이력을 파악하기 어려웠습니다. 컬럼 규칙을 일일이 찾아 적용하는 것도 번거로웠습니다.',
         build:
             '용어사전, ERD, live schema 비교, DDL, 변경 이력을 버저닝으로 관리할 수 있도록 하였습니다. 한눈에 변경 사항을 확인 할 수 있고 여러 데이터베이스에 대해 동일 기준을 적용할 수 있도록 하였습니다.',
         outcome:
@@ -1311,9 +1312,9 @@ const projects: Project[] = [
             '번호판 인식과 차량 추적을 연결해 차량의 입출에 따라 검수를 자동으로 제어했습니다.',
         lead: '차량 한 대의 검수를 시작하려면 검수원, 사무실, 그라플 기사가 무전으로 순서를 맞춰야 했습니다. 차량의 진입과 이탈을 시스템이 알아보고 검수 상태를 바꾸게 했습니다.',
         startingPoint:
-            '차가 들어올 때마다 사람이 일일히 카메라를 움직여 중심을 맞추고 시작, 종료하는 과정에서 AI 촬영이라는 의미가 퇴색 되었습니다.',
+            '차가 들어올 때마다 사람이 카메라를 움직여 중심을 맞추고 검수 시작과 종료를 눌러야 했습니다. AI로 촬영하더라도 앞뒤 과정에는 계속 사람의 손이 필요했습니다.',
         build:
-            '번호판으로 차량 탐색 후, PTZ 카메라를 추적하며 최적화 된 위치에서 시작을 하였습니다. 현장 데이터 약 4만 장과 합성 데이터 5천 장을 정제했습니다. bounding box의 흔들림은 모델만으로 안정되지 않아 원거리 탐지→중앙 이동→줌인→재탐지 규칙과 완만한 보정을 넣었습니다.',
+            '번호판으로 차량을 확인하고 PTZ 카메라로 차량을 추적해 촬영 위치를 맞춘 뒤 검수를 시작하도록 했습니다. 번호판 모델 학습을 위해 현장 데이터 약 4만 장과 합성 데이터 5천 장을 정제했습니다. 바운딩 박스의 흔들림은 모델만으로 안정되지 않아 원거리 탐지→중앙 이동→줌인→재탐지 규칙과 완만한 보정을 넣었습니다.',
         outcome:
             '검증 데이터 번호판 전체 문자열 일치율 98% · 8개 하차지 자동화 후 전사 확대 성공',
         stack: ['LPRNet', 'Focal Loss', 'Vehicle Tracking', 'Synthetic Data'],
@@ -1388,9 +1389,9 @@ const projects: Project[] = [
             '분산 DB와 동기 처리, 현장 Edge 서버를 통합 운영 구조로 다시 설계했습니다.',
         lead: '인수받은 시스템은 작동했지만 세 명이 운영하기에는 너무 컸습니다. 서버 56대 앞에서 새 기능보다 먼저 “우리가 감당할 수 있는 구조인가”를 다시 물었습니다.',
         startingPoint:
-            '현장마다 DB와 서비스가 갈라졌고, health 신호도 3초마다 MQ를 거쳐 DB row로 쌓였습니다. 파일·로그·모니터링까지 애플리케이션 서버를 통과하면서 장애 지점과 운영 비용이 함께 늘었습니다. 차량 지정 장소 하나당 GPU하나를 씀으로써 비 효율적인 리소스 낭비를 보였습니다.',
+            '현장마다 DB와 서비스가 갈라졌고, health 신호도 3초마다 MQ를 거쳐 DB row로 쌓였습니다. 파일·로그·모니터링까지 애플리케이션 서버를 통과하면서 장애 지점과 운영 비용이 함께 늘었습니다. 하차지마다 GPU를 한 대씩 배정해 유휴 자원을 다른 하차지에서 활용하기도 어려웠습니다.',
         build:
-            '책임 경계부터 다시 정했습니다. 백엔드, AI 추론, 후처리, CPU Intensive작업, GPU Intensive 작업을 나누고 파일은 presigned URL과 CloudFront로 애플리케이션 서버에서 빼냈습니다. 로그는 DB 대신 Grafana로 보내고, 중복 DB와 API를 합친 뒤 보관 주기에 맞춰 Archive Storage를 사용했습니다. GPU는 효율적인 사용을 위해 큐잉을 통해 최적화된 분배를 진행하였고 프론트는 클라우드 프론트로 이관, 프록시 서버는 전부 제외 후 서버를 통폐합 하였습니다.',
+            '백엔드, AI 추론, 후처리의 역할을 나누고 CPU·GPU 집약 작업을 분리했습니다. GPU 추론 요청은 큐로 모아 가용 자원에 분배했습니다. 파일 전송은 presigned URL로 애플리케이션 서버를 거치지 않게 하고, 프론트엔드는 CloudFront로 옮겼습니다. DB에 쌓던 로그는 Grafana 기반 관측 체계로 옮기고 중복 DB·API와 프록시 서버를 정리했습니다. 장기 보관 데이터에는 Archive Storage를 사용했습니다.',
         outcome:
             '월 검수 478대 → 7,555대 · 월 서비스 금액 약 200만 원 → 1억 5천만 원 · 월 인프라 비용 5,758만 원 → 1,052만 원',
         stack: [
@@ -3015,10 +3016,10 @@ export default function Home() {
                                 <div>
                                     <h4>무전과 버튼으로 시작하던 검수</h4>
                                     <p>
-                                        차량 입출차를 번호판 인식과 PTZ 추적으로 판단하고, 잘못
-                                        나갔다 돌아온 차량은 이전 검수 상태를 복구했습니다. 그라플을
-                                        차량으로 오인하는 장면은 바운딩 박스를 화면에 보내 작업자가
-                                        즉시 확인하도록 만들었습니다.
+                                        번호판 인식과 PTZ 추적을 검수 상태 전이에 연결하고, 위치를
+                                        다시 잡으려고 나갔다 돌아온 차량은 이전 검수 상태를 복구했습니다.
+                                        그라플을 고철로 오인하는 경우에는 바운딩 박스를 화면에 표시해
+                                        작업자가 인식 결과를 확인할 수 있도록 했습니다.
                                     </p>
                                 </div>
                                 <strong>8개 하차지 자동화 후 전사 확대</strong>
@@ -3042,12 +3043,12 @@ export default function Home() {
                                     <h4>실행은 남지만 학습 이유는 사라지던 환경</h4>
                                     <p>
                                         학습의 metric·log·artifact를 하나의 실행 이력으로 연결하고,
-                                        Prometheus·Alloy·Mimir로 여러 학습 PC의 상태를 모았습니다. GPU
-                                        작업은 큐에 모아 먼저 비는 자원이 다음 추론을 가져가도록
-                                        구성했습니다.
+                                        Prometheus·Alloy·Mimir로 여러 학습 PC의 상태를 모았습니다.
+                                        데이터셋 버전, 코드, 입력값을 함께 기록해 어떤 조건에서 나온
+                                        학습 결과인지 다시 확인할 수 있도록 했습니다.
                                     </p>
                                 </div>
-                                <strong>재현 가능한 학습·추론 운영</strong>
+                                <strong>학습 조건부터 결과까지 같은 이력으로 추적</strong>
                             </article>
                         </div>
                     </section>
@@ -3061,33 +3062,20 @@ export default function Home() {
                             <h3 id="evidence-title">코드 밖에서도</h3>
                         </header>
                         <div>
-                            <article>
-                                <time>2026.06</time>
-                                <div className="profile-evidence__heading">
-                                    <strong>한국정보기술학회 하계종합학술대회</strong>
-                                    <a
-                                        href="https://www.dbpia.co.kr/journal/articleDetail?nodeId=NODE12900919"
-                                        target="_blank"
-                                        rel="noreferrer"
-                                    >
-                                        논문 보기 ↗
-                                    </a>
-                                </div>
-                                <p>
-                                    혼재된 객체 환경에서 어텐션 기반 철스크랩 분류의 성능 향상
-                                    기법 · 제2저자
-                                </p>
-                            </article>
-                            <article>
-                                <time>2024.06</time>
-                                <strong>철강 스크랩 AI 검수 POC 성과 포상</strong>
-                                <p>POC 설계·개발과 본사업 전환 기여 · 사내 포상</p>
-                            </article>
-                            <article>
-                                <time>2021.10</time>
-                                <strong>복지로 차세대 ERP 우수개발자상</strong>
-                                <p>공통 기능·응답 성능·개발 자동화 기여 · 프로젝트 내부 수상</p>
-                            </article>
+                            {resumeEvidence.map((item) => (
+                                <article key={item.title}>
+                                    <time>{item.date}</time>
+                                    <div className="profile-evidence__heading">
+                                        <strong>{item.title}</strong>
+                                        {item.url && (
+                                            <a href={item.url} target="_blank" rel="noreferrer">
+                                                논문 보기 ↗
+                                            </a>
+                                        )}
+                                    </div>
+                                    <p>{item.detail}</p>
+                                </article>
+                            ))}
                             <article>
                                 <time>2026</time>
                                 <strong>직접 만든 데스크톱 제품 배포</strong>

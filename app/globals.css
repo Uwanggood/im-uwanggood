@@ -1083,7 +1083,7 @@ button {
 .project-card__perspective,
 .project-card__footer small,
 .project-card__match > strong {
-  font-size: 0.64rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.055em;
   text-transform: uppercase;
@@ -1119,6 +1119,7 @@ button {
   position: relative;
   z-index: 1;
   display: flex;
+  min-width: 0;
   min-height: 0;
   flex: 1;
   flex-direction: column;
@@ -1132,6 +1133,7 @@ button {
 
 .project-card__perspective {
   margin-top: 6px;
+  font-size: 0.875rem;
   color: color-mix(in srgb, var(--brand) 76%, var(--ink));
   font-weight: 650;
   letter-spacing: 0.04em;
@@ -1155,14 +1157,11 @@ button {
   max-width: 64ch;
   margin-top: 10px;
   color: var(--ink-2);
-  font-size: 0.78rem;
+  font-size: 1rem;
   line-height: 1.58;
   letter-spacing: -0.022em;
   word-break: keep-all;
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  overflow-wrap: anywhere;
 }
 
 .project-card__stack {
@@ -1177,9 +1176,11 @@ button {
   border: 1px solid color-mix(in srgb, var(--line) 88%, transparent);
   border-radius: 999px;
   color: var(--ink-3);
-  font-size: 0.58rem;
+  font-size: 0.875rem;
   font-style: normal;
   font-weight: 600;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .project-card__match {
@@ -1210,7 +1211,7 @@ button {
 
 .project-card__match-item b {
   color: color-mix(in srgb, var(--brand) 78%, var(--ink));
-  font-size: 0.62rem;
+  font-size: 0.875rem;
   font-weight: 700;
   line-height: 1.5;
   overflow-wrap: anywhere;
@@ -1219,7 +1220,7 @@ button {
 .project-card__match-item > span {
   padding-left: 14px;
   color: var(--ink-2);
-  font-size: 0.7rem;
+  font-size: 1rem;
   line-height: 1.5;
   word-break: keep-all;
 }
@@ -1247,7 +1248,7 @@ button {
 
 .project-card__footer strong {
   margin-top: 0;
-  font-size: 0.7rem;
+  font-size: 0.875rem;
   font-weight: 650;
   line-height: 1.55;
   letter-spacing: -0.015em;
@@ -1258,7 +1259,7 @@ button {
   flex: none;
   padding-bottom: 2px;
   border-bottom: 1px solid currentColor;
-  font-size: 0.64rem;
+  font-size: 0.875rem;
   font-weight: 650;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -3677,11 +3678,15 @@ button {
   }
 
   .project-card__footer {
+    flex-direction: column;
+    gap: 12px;
     align-items: flex-start;
   }
 
   .project-card__footer > span:first-child {
-    max-width: 25ch;
+    max-width: none;
+    grid-template-columns: 1fr;
+    gap: 4px;
   }
 
   .project-card__action {
