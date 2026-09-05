@@ -26,6 +26,8 @@
 
 Brand 색은 페이지 면적의 10%를 넘기지 않는다. 본문 배경, 모든 카드, 긴 텍스트에는 적용하지 않는다.
 
+회사별 Brand 색은 공식 출처에서 확인한 값을 사용한다. 이력서 다운로드 JSON의 색상 조사, 출처 기록, 이미지 포함 기본값은 [RESUME_PRESET_GUIDE.md](RESUME_PRESET_GUIDE.md)를 따른다. 임의의 팔레트를 회사 브랜드 색상처럼 사용하지 않는다.
+
 ### Typography
 
 - 한글과 본문: `Noto Sans KR Variable`

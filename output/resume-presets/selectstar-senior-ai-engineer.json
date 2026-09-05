@@ -1,0 +1,26 @@
+{
+  "company": "셀렉트스타",
+  "scope": "work",
+  "technologies": [
+    "ai",
+    "platform",
+    "leadership",
+    "mlops",
+    "rabbitmq",
+    "cost",
+    "poc"
+  ],
+  "projects": [
+    "legacy-modernization",
+    "scrap-ai-poc",
+    "rpa-prediction",
+    "venus",
+    "ai-exam"
+  ],
+  "colors": {
+    "primary": "#0C5FDB",
+    "secondary": "#475569",
+    "accent": "#0C5FDB"
+  },
+  "includeImages": true
+}

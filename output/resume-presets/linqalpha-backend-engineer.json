@@ -1,0 +1,31 @@
+{
+  "company": "링크알파",
+  "scope": "work",
+  "technologies": [
+    "fastapi",
+    "typescript",
+    "react",
+    "rabbitmq",
+    "redis",
+    "postgresql",
+    "aws",
+    "grafana",
+    "mlops",
+    "cost",
+    "payments",
+    "concurrency"
+  ],
+  "projects": [
+    "legacy-modernization",
+    "venus",
+    "inference-infrastructure",
+    "nexteel",
+    "payments-accounting"
+  ],
+  "colors": {
+    "primary": "#0F0F10",
+    "secondary": "#475569",
+    "accent": "#0F0F10"
+  },
+  "includeImages": true
+}

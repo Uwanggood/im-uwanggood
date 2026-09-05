@@ -1386,12 +1386,12 @@ const projects: Project[] = [
         archiveNote:
             '서버 대수를 줄인 일이 아니라 데이터 이동과 저장, 동기 처리 경계를 다시 그려 비용 구조 자체를 바꾼 재구축입니다.',
         summary:
-            'React 기반 검수 운영 웹과 현장 작업자용 화면을 개발하고, 백엔드·AI 처리·인프라를 통합 운영 구조로 다시 설계했습니다.',
+            '백엔드·AI 처리·인프라를 통합 운영 구조로 다시 설계했습니다.',
         lead: '인수받은 시스템은 작동했지만 세 명이 운영하기에는 너무 컸습니다. 서버 56대 앞에서 새 기능보다 먼저 “우리가 감당할 수 있는 구조인가”를 다시 물었습니다.',
         startingPoint:
             '현장마다 DB와 서비스가 갈라졌고, health 신호도 3초마다 MQ를 거쳐 DB row로 쌓였습니다. 파일·로그·모니터링까지 애플리케이션 서버를 통과하면서 장애 지점과 운영 비용이 함께 늘었습니다. 하차지마다 GPU를 한 대씩 배정해 유휴 자원을 다른 하차지에서 활용하기도 어려웠습니다.',
         build:
-            'React·TypeScript로 검수 운영 웹(FOFE)과 현장 작업자용 모바일·태블릿 웹(FOMO)을 개발했습니다. 검수 결과와 이미지를 확인하고 작업을 제어하는 화면에 STOMP로 실시간 상태를 반영했습니다. 백엔드, AI 추론, 후처리의 역할을 나누고 CPU·GPU 집약 작업을 분리했습니다. GPU 추론 요청은 큐로 모아 가용 자원에 분배했습니다. 파일 전송은 presigned URL로 애플리케이션 서버를 거치지 않게 하고, 프론트엔드는 CloudFront로 옮겼습니다. DB에 쌓던 로그는 Grafana 기반 관측 체계로 옮기고 중복 DB·API와 프록시 서버를 정리했습니다. 장기 보관 데이터에는 Archive Storage를 사용했습니다.',
+            '백엔드, AI 추론, 후처리의 역할을 나누고 CPU·GPU 집약 작업을 분리했습니다. GPU 추론 요청은 큐로 모아 가용 자원에 분배했습니다. 파일 전송은 presigned URL로 애플리케이션 서버를 거치지 않게 하고, 프론트엔드는 CloudFront로 옮겼습니다. DB에 쌓던 로그는 Grafana 기반 관측 체계로 옮기고 중복 DB·API와 프록시 서버를 정리했습니다. 장기 보관 데이터에는 Archive Storage를 사용했습니다.',
         outcome:
             '월 검수 478대 → 7,555대 · 월 서비스 금액 약 200만 원 → 1억 5천만 원 · 월 인프라 비용 5,758만 원 → 1,052만 원',
         stack: [
@@ -1428,14 +1428,6 @@ const projects: Project[] = [
             'Airflow'
         ],
         matchProofs: [
-            {
-                signals: ['react', 'typescript', 'frontend', 'ant-design'],
-                text: 'React·TypeScript와 Ant Design으로 FOFE의 검수 운영 웹과 FOMO의 모바일·태블릿 웹을 개발했습니다. 운영자는 검수 결과와 이미지·레이어를 확인하고, 현장 작업자는 태블릿에서 검수를 제어하도록 구성했습니다.',
-            },
-            {
-                signals: ['stomp', 'websocket', 'redux-toolkit', 'rtk-query'],
-                text: 'STOMP로 수신한 검수 진행 상태와 위험물 알림을 Redux 상태에 반영했습니다. 상세 조회와 중지·재시작 요청은 RTK Query로 연결해 실시간 알림과 사용자 조작이 같은 화면 상태에 반영되도록 했습니다.',
-            },
             {
                 signals: ['fastapi', 'backend', 'platform'],
                 text: '현장마다 따로 있던 처리 Docker와 감시 서버를 통합 API로 모았습니다.',
